@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.skynxt" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>SkyNxt</name>
+    <description>
+        Blockchain DApp.
+    </description>
+    <author email="contact@skynxt.info" href="http://skynxt.info">
+        SkyNxt Team
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+	<preference name="SplashScreen" value="screen" />
+	<preference name="SplashScreenDelay" value="10000" />
+	<preference name="SplashMaintainAspectRatio" value="true" />
+	<platform name="amazon-fireos">
+              <icon src="res/android/ldpi.ico" density="ldpi" />
+              <icon src="res/android/mdpi.ico" density="mdpi" />
+              <icon src="res/android/hdpi.ico" density="hdpi" />
+              <icon src="res/android/xhdpi.ico" density="xhdpi" />
+     </platform>
+	 
+	 <platform name="firefoxos">
+              <icon src="res/ff/SkyNxt.ico" width="60" height="60" />
+     </platform>
+	 
+	 <platform name="wp8">
+              <icon src="res/wp/SkyNxt.ico" width="99" height="99" />
+              <!-- tile image -->
+              <icon src="res/wp/SkyNxt.ico" width="159" height="159" />
+			  
+			  <splash src="res/screen/wp8/SkyNxt.png" width="768" height="1280"/>
+     </platform>
+
+	<platform name="ios">
+              <!-- iOS 8.0+ -->
+              <!-- iPhone 6 Plus  -->
+              <icon src="res/ios/SkyNxt.ico" width="180" height="180" />
+              <!-- iOS 7.0+ -->
+              <!-- iPhone / iPod Touch  -->
+              <icon src="res/ios/SkyNxt.ico" width="60" height="60" />
+              <icon src="res/ios/SkyNxt.ico" width="120" height="120" />
+              <!-- iPad -->
+              <icon src="res/ios/SkyNxt.ico" width="76" height="76" />
+              <icon src="res/ios/SkyNxt.ico" width="152" height="152" />
+              <!-- iOS 6.1 -->
+              <!-- Spotlight Icon -->
+              <icon src="res/ios/SkyNxt.ico" width="40" height="40" />
+              <icon src="res/ios/SkyNxt.ico" width="80" height="80" />
+              <!-- iPhone / iPod Touch -->
+              <icon src="res/ios/SkyNxt.ico" width="57" height="57" />
+              <icon src="res/ios/SkyNxt.ico" width="114" height="114" />
+              <!-- iPad -->
+              <icon src="res/ios/SkyNxt.ico" width="72" height="72" />
+              <icon src="res/ios/SkyNxt.ico" width="144" height="144" />
+              <!-- iPhone Spotlight and Settings Icon -->
+              <icon src="res/ios/SkyNxt.ico" width="29" height="29" />
+              <icon src="res/ios/SkyNxt.ico" width="58" height="58" />
+              <!-- iPad Spotlight and Settings Icon -->
+              <icon src="res/ios/SkyNxt.ico" width="50" height="50" />
+              <icon src="res/ios/SkyNxt.ico" width="100" height="100" />
+			  
+			      <!-- images are determined by width and height. The following are supported -->
+			<splash src="res/screen/ios/SkyNxt.png" width="320" height="480"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="640" height="960"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="768" height="1024"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="1536" height="2048"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="1024" height="768"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="2048" height="1536"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="640" height="1136"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="750" height="1334"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="1242" height="2208"/>
+			<splash src="res/screen/ios/SkyNxt.png" width="2208" height="1242"/>
+     </platform>
+	 
+	<platform name="android">
+		<feature name="File">
+			<param name="android-package" value="org.apache.cordova.file.FileUtils" />
+		</feature>	
+		<icon src="res/android/ldpi.ico" density="ldpi" />
+		<icon src="res/android/mdpi.ico" density="mdpi" />
+		<icon src="res/android/hdpi.ico" density="hdpi" />
+		<icon src="res/android/xhdpi.ico" density="xhdpi" />
+
+	  <!-- you can use any density that exists in the Android project -->
+		<splash src="res/screen/android/SkyNxt.png" density="land-hdpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="land-ldpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="land-mdpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="land-xhdpi"/>
+
+		<splash src="res/screen/android/SkyNxt.png" density="port-hdpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="port-ldpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="port-mdpi"/>
+		<splash src="res/screen/android/SkyNxt.png" density="port-xhdpi"/>
+	</platform>
+
+</widget>

@@ -1,0 +1,463 @@
+<!--
+The MIT License (MIT)
+
+Copyright (c) 2015 SkyNxt.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+!-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SkyNxt</title>
+	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="css/chartist.min.css">
+	<script type="text/javascript" src="cordova.js"></script>
+	<script type="text/javascript" src="js/framework/jquery.min.js"></script>
+	<script type="text/javascript" src="js/framework/jquery.mobile-1.4.5.min.js"></script>	
+	<script type="text/javascript" src="js/framework/lokijs.min.js"></script>
+	<script type="text/javascript" src="js/framework/chartist.min.js"></script>
+	<script type="text/javascript" src="js/framework/qrcode.js"></script>
+	<script type="text/javascript" src="js/crypto/extensions.js"></script>
+	<script type="text/javascript" src="js/crypto/util.js"></script>
+	<script type="text/javascript" src="js/crypto/jsbn.js"></script>
+	<script type="text/javascript" src="js/crypto/jsbn2.js"></script>
+	<script type="text/javascript" src="js/crypto/nxtaddress.js"></script>
+	<script type="text/javascript" src="js/crypto/curve25519.js"></script>
+	<script type="text/javascript" src="js/crypto/jssha256.js"></script>
+	<script type="text/javascript" src="js/crypto/sha256.js"></script>
+	<script type="text/javascript" src="js/crypto/converters.js"></script>
+	<script type="text/javascript" src="js/ui/peerdiscovery.js"></script>
+	<style>
+		/*override chartist options*/
+		.ct-series-a .ct-line {
+		  /* Set the colour of this series line */
+		  stroke: rgba(151,187,205,1);
+		  /* Control the thikness of your lines */
+		  stroke-width: 1.5px;
+		  /* Create a dashed line with a pattern */
+		  /*stroke-dasharray: 10px 20px;*/
+		}
+
+		.ct-series-a .ct-point {
+		  /* Colour of your points */
+		  stroke: rgba(151,187,205,1);
+		  /* Size of your points */
+		  stroke-width: 3.5px;
+		  /* Make your points appear as squares */
+		  stroke-linecap: square;
+		}	
+		.ct-square:before{padding-bottom:125%}
+		.ct-label{color:rgba(151,187,205,1);}
+	</style>
+	<script type="text/javascript" charset="utf-8">
+
+		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) {
+			document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
+		} else {
+		   //SkyNxt.discover(); // browser
+		}
+
+		// device APIs are available
+		//
+		function onDeviceReady() {			
+			setTimeout(function() {
+				navigator.splashscreen.hide();
+			}, 2000);
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, null);
+ 		}
+		
+		function gotFS(fileSystem) {
+			SkyNxt.initFileSystem(fileSystem);
+		}
+		
+		//theme handling
+		$( document ).on( "pagecreate", function() {
+			$( "#theme-selector input" ).on( "change", function( event ) {
+				var themeClass = $( "#theme-selector input:checked" ).attr( "id" );
+				changeTheme(themeClass);
+				var userdbs = SkyNxt.usersettings.getCollection(SkyNxt.USER_SETTING_COLLECTION);
+				if(userdbs != 'undefined')
+				{
+					var uiTheme = userdbs.findOne({'key' : SkyNxt.UI_THEME});
+					uiTheme.value = themeClass;
+				}
+			});
+		});
+		
+		function changeTheme(themeClass)
+		{
+			$( "#login, #account, #page, #sendNxt, #portfolio, #popupAssetID, #assetID, #panel, #assetDetailsFull, #asset_details_popupbox, #confirmAssetBuy, #confirm_buy_popupbox, #confirmAssetSell, #confirm_assetsell_popupbox, #popupOrderID, #transactions, #confirmSendNxt, #settings" ).removeClass( "ui-page-theme-a ui-page-theme-b" ).addClass( "ui-page-theme-" + themeClass );
+		}
+		
+		document.addEventListener("backbutton", function(e){
+			if($.mobile.activePage.is('#login')){
+				SkyNxt.createWrite(SkyNxt.FILE_ENTRY); //save app user data before exit
+				navigator.app.exitApp();
+			}
+			else {
+				navigator.app.backHistory();
+			}
+		}, false);
+		
+		//loading & hiding works only if its wrapped in setTimeout
+		function loaderIcon(showHide) {
+			setTimeout(function(){
+				$.mobile.loading(showHide);
+			}, 1); 
+		}
+
+		function loaderIconText(msgText) {
+			setTimeout(function(){
+				$.mobile.loading( 'show', {
+											text: msgText,
+											textVisible: "true"																						
+				});
+			}, 1);
+		}
+		
+	</script>
+</head>
+<body>
+ 
+<div data-role="page" id="login">
+<div data-role="header"><h1>SkyNxt</h1>
+<a href="#settings" id="setting_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-right">Settings</a>
+</div>
+
+<div role="main" class="ui-content">
+	<form>
+		<input data-clear-btn="true" name="passPhrase" id="passPhrase" value="" type="text" placeholder="Enter your passphrase here"></input>
+		<p><a href="#account" class="ui-btn ui-shadow ui-corner-all">Enter</a></p>
+	</form>
+	<div style="text-align:center; width:100%; display:none;" id="nxtAddressQR" >
+	<h3 id="nxtAddress" style="text-align:center; width:100%;"></h3>
+	<a href="#receiveByQRcode" onclick="SkyNxt.createQRCode()" id="qrCodeIcon" data-rel="popup" data-transition="pop" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a>
+		<div data-role="popup" id="receiveByQRcode" class="ui-content" >	
+			<div id="qr"></div>
+		</div>
+	</div>
+</div>
+</div>
+
+<div data-url="settings" data-role="page" id="settings" >
+<div data-role="header">
+	<h1>Settings</h1>	
+	<a href="./index.html" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
+</div><!-- /header -->
+<div role="main" class="ui-content">
+	<h3>Peer\Node settings</h3>
+<div class="ui-field-contain" id="peerNodeSelector">
+	  <fieldset data-role="controlgroup">
+		<input type="radio" name="radio-choice-2" id="radio-choice-1" value="choice-1" checked="checked">
+		<label for="radio-choice-1">Auto detect peers</label>
+	    <div id="nodeIPInput">
+		<input type="radio" name="radio-choice-2" id="radio-choice-2" value="choice-2">
+		<label for="radio-choice-2">Input node IP\Port</label>
+		<div class="ui-grid-a ui-field-contain" id="ipGrid">
+			<div class=ui-block-a style="width: 70% !important;"><input type="text" id="nodeIP" placeholder="IP Address"></input></div>
+			<div class=ui-block-b style="width: 25% !important;"><input type="text" id="port" placeholder="Port"></input></div>
+		</div>
+		<button type="button" onclick="SkyNxt.testIPAddress()" class="ui-btn ui-corner-all ui-shadow" id="nodeIPBtn">Test connection</button>
+		</div>
+	  </fieldset>
+</div>	
+	<h3>UI Theme</h3>
+<div class="ui-field-contain" id="theme-selector">
+	<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+		<label for="a">Light Theme</label>
+		<input type="radio" name="theme" id="a" checked="checked">
+		<label for="b">Dark Theme</label>
+		<input type="radio" name="theme" id="b">
+	</fieldset>
+</div>
+</div>
+
+<div data-role="popup" id="nodeIPInfoPopup" class="ui-content">
+    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+	<p id="nodeInformation"></p>
+</div>
+
+
+
+</div>
+
+<div data-url="account" data-role="page" id="account" >
+<div data-role="header">
+	<h1>Account</h1>	
+	<a href="./index.html" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
+</div><!-- /header -->
+<div role="main" class="ui-content">
+ <h3  style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD" id="accountNxtAddress"></h3>
+<ul data-role="listview" data-inset="true">
+<li><a href="#sendNxt" id="sendNxtSelect">
+	<h2>Send Nxt</h2>
+	<p>Send amount to an Nxt Address</p>
+</a></li>
+<li><a href="#portfolio" id="portfolioSelect">
+	<h2>Nxt Asset Exchange Portfolio</h2>
+	<p>View porfolio. Trade on Nxt AE</p>
+</a></li>
+<li><a href="#transactions" id="transactionSelect">
+	<h2>Account Transactions</h2>
+	<p>View transactions of your account</p>
+</a></li>
+</ul>
+</div><!-- /content -->
+</div><!-- /page -->
+
+<div data-role="page" id="sendNxt" data-title="Send Nxt">
+<div data-role="header">
+	<h1>Send Nxt</h1>
+	<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
+	<a href="#" onclick="SkyNxt.sendNxt()" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-left">Refresh</a>
+</div><!-- /header -->
+<div class="ui-content" id="Trade" >	
+<div class="ui-grid-a ui-field-contain">
+<div class=ui-block-a style="text-align: right !important;"><span>Available Balance: &nbsp</span></div>
+<div class=ui-block-b><strong id="available_Balance"></strong></div>
+</div>	
+
+<div class="ui-grid-a ui-field-contain">
+<div class=ui-block-a style="width: 85% !important;"><input name="recipient_address" id="recipient_address" type="text" placeholder="Recipient Nxt Address"></input></div>
+<div class=ui-block-b style="width: 15% !important;">&nbsp&nbsp<a href="#" onclick="SkyNxt.scanBarCode()" id="barcodeScanner" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a></div>
+<div class=ui-block-a style="width: 85% !important;"><input name="send_amount" id="send_amount" placeholder="Amount to Send"></input></div>
+<div class=ui-block-b style="width: 15% !important;"></div>
+</div>	
+<a href="#confirmSendNxt" onclick="SkyNxt.sendNxtBtnClick()" data-rel="popup" data-position-to="window" class="ui-btn ui-shadow ui-btn-inline ui-corner-all" data-transition="pop" id="send_nxt_button">Send Nxt</a>
+</div><!-- End content-->
+<div data-role="popup" id="confirmSendNxt" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<div data-role="header" id="confirm_sendnxt_popupbox">
+	<h1>Confirm Send Nxt</h1>
+	</div>
+	<div role="main" class="ui-content">	
+	<p id="recipient_confirm">Recipient: </p>
+	<p id="amount_confirm">Amount: </p>
+	<p id="send_fee_confirm">Fee: </p>	
+	</div>
+	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
+	<a href="#" onclick="SkyNxt.confirmSendNxt()" class="ui-btn ui-corner-all ui-shadow" data-rel="back" data-transition="flow" id="send_nxt_submit">Submit</a>
+	</div>
+</form>
+</div>
+</div><!-- end send nxt page -->
+
+<div data-role="page" id="portfolio" data-title="Your Account Portfolio">
+<div data-role="header">
+<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
+<a href="#popupAssetID" data-rel="popup" data-position-to="window" data-transition="pop" id="add_asset_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-bars ui-btn-icon-right">Add Asset</a>
+</div>
+<div class="ui-content" role="main" id="searchAssetList">
+<form>
+    <input id="portfolioFilterListview" data-type="search" placeholder="Search in your Account Portfolio..."></input>
+</form>
+<div data-role="collapsibleset" data-filter="true" data-inset="true" id="portfolioList" data-input="#portfolioFilterListview">
+
+</div>
+</div>
+<div data-role="popup" id="popupAssetID" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<h3>Enter Asset ID</h3>				
+	<label class="ui-hidden-accessible">Asset ID</label>
+	<input id="assetID" value="" placeholder="Asset ID"></input>
+	<a href="#" onclick="SkyNxt.addAsset()" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Add to portfolio</a>
+</div>
+</form>
+</div>
+</div>
+
+<div data-url="nxtAE" data-role="page" id="panel" data-title="Nxt Asset Exchange">
+<div data-role="header">
+	<h1 id="assetHeading">Trade</h1>	
+	<a href="#portfolio" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Portfolio</a>
+	<a href="#" data-rel="popup" data-position-to="window" data-transition="pop" id="detailed_asset_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-bars ui-btn-icon-right">Asset Details</a>
+
+<div data-role="popup" id="assetDetailsFull" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<div data-role="header" id="asset_details_popupbox">
+	<h1>Asset Details</h1>
+	</div>
+	<div role="main" class="ui-content">
+	<p id="assetID_full"></p>
+	<p id="name_full"></p>
+	<p id="description_full"></p>
+	<p id="account_full"></p>
+	<p id="accountRS_full"></p>
+	<p id="quantityQNT_full"></p>
+	<p id="decimals_full"></p>	
+	</div>
+	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">OK</a>
+</div>
+</form>
+</div>	
+</div><!-- /header -->
+
+<div class="ui-content" id="Trade" >
+<div data-role="tabs" id="nxtAETab">
+<div data-role="navbar">
+<ul>
+<li><a href="#buy">Buy</a></li>
+<li><a href="#sell">Sell</a></li>
+<li><a href="#orders">Orders</a></li>
+<li><a href="#history" onclick="SkyNxt.historyClick()">History</a></li>
+</ul>
+</div>
+<div id="buy" class="ui-body-d ui-content">
+<div class="ui-grid-a ui-field-contain">
+ <div class=ui-block-a style="width: 25% !important;"><p>Price</p></div>
+ <div class=ui-block-b style="width: 75% !important;"><input name="price" id="buy_asset_price" value="0.0" type="number"></input></div>
+ <div class=ui-block-a style="width: 25% !important;"><p>Quantity</p></div>
+ <div class=ui-block-b style="width: 75% !important;"><input name="qty" id="buy_asset_quantity" value="0.0" type="number"></input></div>
+</div>
+<label id="calcValueBuy" class="ui-hidden-accessible"></label>
+<a href="#confirmAssetBuy" onclick="SkyNxt.confirm('buy')" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-inline ui-corner-all" data-transition="pop" id="buy_asset">Buy Asset</a>
+<div data-role="popup" id="confirmAssetBuy" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<div data-role="header" id="confirm_buy_popupbox">
+	<h1>Buy</h1>
+	</div>
+	<div role="main" class="ui-content">
+	<p id="assetID_confirm_buy"></p>
+	<p id="price_confirm_buy">Price: </p>
+	<p id="qty_confirm_buy">Quantity: </p>
+	<p id="total_confirm_buy">Total: </p>
+	<p id="fee_confirm_buy">Fee: </p>
+	</div>
+	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
+	<a href="#" onclick="SkyNxt.submitOrder('buy')" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back" data-transition="flow">Submit</a>
+</div>
+</form>
+</div>
+
+<table data-role="table" id="askOrdersTable" data-mode="columntoggle" class="ui-body-d ui-shadow table-stripe ui-responsive">
+	<thead>
+	<tr>
+	<th data-priority="1">Price</th>
+	<th data-priority="1">Quantity</th>
+	</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+</div>
+
+<div id="sell" class="ui-body-d ui-content">
+<div class="ui-grid-a ui-field-contain">
+ <div class=ui-block-a style="width: 25% !important;"><p>Price</p></div>
+ <div class=ui-block-b style="width: 75% !important;"><input name="price" id="sell_asset_price" value="0.0" type="number"></input></div>
+ <div class=ui-block-a style="width: 25% !important;"><p>Quantity</p></div>
+ <div class=ui-block-b style="width: 75% !important;"><input name="qty" id="sell_asset_quantity" value="0.0" type="number"></input></div>
+</div>
+<label id="calcValueSell" class="ui-hidden-accessible"></label>
+<a href="#confirmAssetSell" onclick="SkyNxt.confirm('sell')" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-inline ui-corner-all" data-transition="pop" id="sell_asset">Sell Asset</a>
+<div data-role="popup" id="confirmAssetSell" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<div data-role="header" id="confirm_assetsell_popupbox">
+	<h1>Sell</h1>
+	</div>
+	<div role="main" class="ui-content">
+	<p id="assetID_confirm_sell"></p>
+	<p id="price_confirm_sell">Price: </p>
+	<p id="qty_confirm_sell">Quantity: </p>
+	<p id="total_confirm_sell">Total: </p>
+	<p id="fee_confirm_sell">Fee: </p>
+	</div>
+	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
+	<a href="#" onclick="SkyNxt.submitOrder('sell')" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back" data-transition="flow">Submit</a>
+	</div>
+</form>
+</div>
+<table data-role="table" id="bidOrdersTable" data-mode="columntoggle" class="ui-body-d ui-shadow table-stripe ui-responsive">
+	<thead>
+	<tr>
+	<th data-priority="1">Price</th>
+	<th data-priority="1">Quantity</th>
+	</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+</div>
+
+<div id="orders" class="ui-body-d ui-content">
+<form>
+<div class="ui-grid-a ui-field-contain" id="openOrdersSwitch">
+    <div class=ui-block-a style="width: 65% !important;"><label for="openOrdersLabel"><p></p>Showing open orders for :</label></div>
+    <div class=ui-block-b style="width: 35% !important;"><select name="openOrdersLabel" id="openOrdersLabel" data-role="flipswitch" data-mini="true">
+		<option value="Sell">Sell</option>
+        <option value="Buy" selected="selected">Buy</option>        
+    </select></div>
+</div>
+</form>
+<p></p>
+<div class="ui-grid-b" id="openbidOrdersTable">
+</div>
+<div class="ui-grid-b" id="openaskOrdersTable">
+</div>
+<div data-role="popup" id="popupOrderID" class="ui-corner-all">
+<form>
+<div style="padding:10px 20px;">
+	<h3 id="cancellation_heading">Order Cancellation</h3>				
+	<p id="orderID_confirm_cancel">Order ID: </p>
+	<p id="price_confirm_cancel">Price: </p>
+	<p id="qty_confirm_cancel">Quantity: </p>
+	<p id="fee_cancel">Fee: </p>
+	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Dismiss</a>
+	<button type="button" onclick="SkyNxt.cancelOrder()" class="ui-btn ui-corner-all ui-shadow">Cancel Order</button>
+</div>
+</form>
+</div>
+</div>
+
+<div id="history" class="ui-body-d ui-content">
+	<div class="ct-chart ct-square" id="chart"></div>
+</div>
+</div><!----tabs----->
+</div> <!----content----->
+</div><!----end page----->
+
+<div data-role="page" id="transactions" data-title="Your Account Transactions">
+<div data-role="header">
+<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
+<a href="#" onclick="SkyNxt.transactions()" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-left">Refresh</a>
+</div>
+<div>
+<div class="ui-content" id="transactionList">
+<form>
+    <input id="transactionFilterview" data-type="search" placeholder="Search transactions..."></input>
+</form>
+<div data-role="collapsibleset" data-filter="true" data-inset="true" id="transactionCollapsibleList" data-input="#transactionFilterview">
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/ui/file.js"></script>
+<script type="text/javascript" src="js/ui/address.js"></script>
+<script type="text/javascript" src="js/ui/assetexchange.js"></script>
+<script type="text/javascript" src="js/ui/transaction.js"></script>
+<script type="text/javascript" src="js/ui/sendnxt.js"></script>
+</body>
+</html>
