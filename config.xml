@@ -14,10 +14,6 @@
 	<preference name="SplashMaintainAspectRatio" value="true" />
 
 	<gap:platform name="android" />
-		<feature name="File">
-			<param name="android-package" value="org.apache.cordova.file.FileUtils" />
-		</feature>	
-		
 		<gap:plugin name="org.apache.cordova.file" source="npm" />
 		<gap:plugin name="org.apache.cordova.splashscreen" source="npm" />
 		<gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
