@@ -127,8 +127,6 @@ function firstWrite(fileEntry)
 		var ip = String(data.ip_peer);
 		trustedPeerList = ip + "," + trustedPeerList;
 	}
-	SkyNxt.PEER_IP = trustedPeerList.split(',');
-	SkyNxt.getPeer();
 	userdbs.insert({key:SkyNxt.TRUSTED_PEERS, value:trustedPeerList});	
 	SkyNxt.createWrite(fileEntry);
 }
