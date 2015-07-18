@@ -687,7 +687,7 @@ var SkyNxt = (function(SkyNxt, $, undefined) {
 			cancel = "buy_cancel";
 		}
 		$("#popupOrderID").popup("close");
-		placeAssetOrder_BuildHex(cancel, 0, 0, 0, cancelOrderID);
+		SkyNxt.placeAssetOrder_BuildHex(cancel, 0, 0, 0, cancelOrderID);
 	}
 	
 	$("#detailed_asset_btn").on("click", function() {
