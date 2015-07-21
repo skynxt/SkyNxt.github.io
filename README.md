@@ -13,4 +13,4 @@ APK for Android from here:
 https://build.phonegap.com/apps/1553586/share
 
 ##Run in Browser
-https://cdn.rawgit.com/skynxt/SkyNxt/master/www/index.html
+https://skynxt.github.io/www/
