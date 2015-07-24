@@ -82,8 +82,7 @@ THE SOFTWARE.
 			SkyNxt.initFileSystem(fileSystem);
 		}
 		
-		//theme handling
-		$( document ).on( "pagecreate", function() {
+		$( document ).ready(function(){
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) 
 			{
 				var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1 && document.URL.indexOf( 'file://' ) === -1;
@@ -99,7 +98,12 @@ THE SOFTWARE.
 			else 
 			{
 			   SkyNxt.discover(); // browser
-			}
+			}		
+		}
+		);
+		
+		//theme handling
+		$( document ).on( "pagecreate", function() {
 			$( "#theme-selector input" ).on( "change", function( event ) {
 				var themeClass = $( "#theme-selector input:checked" ).attr( "id" );
 				changeTheme(themeClass);
