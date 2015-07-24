@@ -69,12 +69,6 @@ THE SOFTWARE.
 	</style>
 	<script type="text/javascript" charset="utf-8">
 
-		if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) {
-			document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
-		} else {
-		   SkyNxt.discover(); // browser
-		}
-
 		// device APIs are available
 		//
 		function onDeviceReady() {			
@@ -90,6 +84,22 @@ THE SOFTWARE.
 		
 		//theme handling
 		$( document ).on( "pagecreate", function() {
+			if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) 
+			{
+				var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1 && document.URL.indexOf( 'file://' ) === -1;
+				if(app)
+				{
+					document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
+				}
+				else
+				{
+					SkyNxt.discover(); // browser
+				}
+			} 
+			else 
+			{
+			   SkyNxt.discover(); // browser
+			}
 			$( "#theme-selector input" ).on( "change", function( event ) {
 				var themeClass = $( "#theme-selector input:checked" ).attr( "id" );
 				changeTheme(themeClass);
