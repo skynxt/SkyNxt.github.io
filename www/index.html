@@ -108,7 +108,7 @@ THE SOFTWARE.
 				var themeClass = $( "#theme-selector input:checked" ).attr( "id" );
 				changeTheme(themeClass);
 				var userdbs = SkyNxt.usersettings.getCollection(SkyNxt.USER_SETTING_COLLECTION);
-				if(userdbs != 'undefined')
+				if(userdbs != null && userdbs != 'undefined')
 				{
 					var uiTheme = userdbs.findOne({'key' : SkyNxt.UI_THEME});
 					uiTheme.value = themeClass;
