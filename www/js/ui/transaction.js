@@ -28,7 +28,9 @@ SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT = 2;
 SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT = 3;
 SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
 SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
-
+SkyNxt.TYPE_MESSAGING = 1;
+SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING = 3;
+SkyNxt.NO_VOTE_VALUE = -128;	//Byte.MIN_VALUE
 SkyNxt.PAYMENT = "Payment";
 SkyNxt.BUY_ORDER = "Buy Order";
 SkyNxt.SELL_ORDER = "Sell Order";
@@ -221,6 +223,62 @@ SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order){
 	broadcastTransaction(tx);
 }
 
+SkyNxt.castVote_BuildHex = function(pollid, vote){
+    pollID = pollid.toString();
+	var buffer = []; var hexTrans;
+	var LONG_BYTE_LENGTH = 8; 
+
+	var amountNQT = 0; var ecBlockHeight = 0; var ecBlockId = 0; var version = 1;
+	
+	var secretPhraseBytes = converters.stringToByteArray(SkyNxt.globalPassPhrase);	
+	var digest = SkyNxt.simpleHash(secretPhraseBytes);
+	var publicKey = converters.byteArrayToHexString(curve25519.keygen(digest).p);	
+	var timestamp = Math.floor(Date.now() / 1000) - 1385294400;
+	hexTrans = converters.byteArrayToHexString([SkyNxt.TYPE_MESSAGING]);	
+	var bitVersion = version << 4;
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(converters.int32ToBytes(timestamp)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([160]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([5]));
+	hexTrans = hexTrans.concat(publicKey);
+	var nxtAddr = new NxtAddress();
+	nxtAddr.set("1739068987193023818"); //creator ID, Genesis account id
+	var creatorID = (new BigInteger(nxtAddr.account_id())).toByteArray().reverse();
+	creatorID = creatorID.concat(pad( LONG_BYTE_LENGTH - creatorID.length, 0 ));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(creatorID.slice(0, LONG_BYTE_LENGTH)));
+	var amount = (new BigInteger(String(amountNQT))).toByteArray().reverse();
+	amount = amount.concat(pad(LONG_BYTE_LENGTH - amount.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(amount.slice(0, LONG_BYTE_LENGTH)));
+	var fee = (new BigInteger(SkyNxt.FEE_NQT)).toByteArray().reverse();
+	fee = fee.concat(pad(LONG_BYTE_LENGTH - fee.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(fee.slice(0, LONG_BYTE_LENGTH)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(32,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(64,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(16,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([version]));
+	
+	var poll = (new BigInteger(pollID)).toByteArray().reverse();
+	poll = poll.concat(pad(LONG_BYTE_LENGTH - poll.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(poll.slice(0, LONG_BYTE_LENGTH)));
+
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([vote.length]));
+
+	for(var i = 0; i < vote.length; i++)
+	{
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString([vote[i]]));
+	}
+	
+	buffer = converters.hexStringToByteArray(hexTrans);
+	verifyAndSignTransactionBytes(buffer, "vote");
+	var signature = SkyNxt.signBytes(buffer, SkyNxt.globalPassPhrase);
+	var buffTillSignature = buffer.slice(0, 96);
+	var buffAfterSignature = buffer.slice(96+64);
+	var signed = buffTillSignature; signed = signed.concat(signature); signed = signed.concat(buffAfterSignature);
+	var tx = converters.byteArrayToHexString(signed);
+	prompt("", tx);
+	broadcastTransaction(tx);
+}
+
 function verifyAndSignTransactionBytes(byteArray, type) {
 	var transaction = {};
 	transaction.type = byteArray[0];
@@ -249,6 +307,18 @@ function verifyAndSignTransactionBytes(byteArray, type) {
 		transaction.assetId = String(converters.byteArrayToBigInteger(byteArray, 177));
 		transaction.quantityQNT = String(converters.byteArrayToBigInteger(byteArray, 185));
 		transaction.priceNQT = String(converters.byteArrayToBigInteger(byteArray, 193));
+	}
+	if(type == "vote")
+	{
+		transaction.ver = (byteArray[176] & 0xF0) >> 4;
+		transaction.pollid = String(converters.byteArrayToBigInteger(byteArray, 177));
+		transaction.length = String(byteArray[185]);
+		transaction.vote = [];
+		var index = 0;
+		for(var i = 186; i < transaction.length; i++)
+		{
+			transaction.vote[index++] = String(byteArray[i]);
+		}
 	}
 }
 

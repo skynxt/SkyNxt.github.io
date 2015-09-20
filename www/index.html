@@ -29,9 +29,13 @@ THE SOFTWARE.
 	<title>SkyNxt</title>
 	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="css/chartist.min.css">
+	<link rel="stylesheet" href="css/skynxt.css">
+	<link rel="stylesheet" href="js/framework/ionic/css/ionicons.min.css">
+	<link rel="stylesheet" href="js/framework/ionic/css/ionic.min.css">	
 	<script type="text/javascript" src="cordova.js"></script>
 	<script type="text/javascript" src="js/framework/jquery.min.js"></script>
 	<script type="text/javascript" src="js/framework/jquery.mobile-1.4.5.min.js"></script>	
+	<script type="text/javascript" src="js/framework/ionic/js/ionic.bundle.min.js"></script>
 	<script type="text/javascript" src="js/framework/lokijs.min.js"></script>
 	<script type="text/javascript" src="js/framework/chartist.min.js"></script>
 	<script type="text/javascript" src="js/framework/qrcode.js"></script>
@@ -45,28 +49,7 @@ THE SOFTWARE.
 	<script type="text/javascript" src="js/crypto/sha256.js"></script>
 	<script type="text/javascript" src="js/crypto/converters.js"></script>
 	<script type="text/javascript" src="js/ui/peerdiscovery.js"></script>
-	<style>
-		/*override chartist options*/
-		.ct-series-a .ct-line {
-		  /* Set the colour of this series line */
-		  stroke: rgba(151,187,205,1);
-		  /* Control the thikness of your lines */
-		  stroke-width: 1.5px;
-		  /* Create a dashed line with a pattern */
-		  /*stroke-dasharray: 10px 20px;*/
-		}
-
-		.ct-series-a .ct-point {
-		  /* Colour of your points */
-		  stroke: rgba(151,187,205,1);
-		  /* Size of your points */
-		  stroke-width: 3.5px;
-		  /* Make your points appear as squares */
-		  stroke-linecap: square;
-		}	
-		.ct-square:before{padding-bottom:125%}
-		.ct-label{color:rgba(151,187,205,1);}
-	</style>
+	<script type="text/javascript" src="js/ui/vote.js"></script>
 	<script type="text/javascript" charset="utf-8">
 
 		// device APIs are available
@@ -147,7 +130,7 @@ THE SOFTWARE.
 			}, 1);
 		}
 		
-	</script>
+	</script>	
 </head>
 <body>
  
@@ -208,9 +191,6 @@ THE SOFTWARE.
     <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
 	<p id="nodeInformation"></p>
 </div>
-
-
-
 </div>
 
 <div data-url="account" data-role="page" id="account" >
@@ -232,6 +212,10 @@ THE SOFTWARE.
 <li><a href="#transactions" id="transactionSelect">
 	<h2>Account Transactions</h2>
 	<p>View transactions of your account</p>
+</a></li>
+<li><a href="#" onclick="hidePage()" id="voteSelect">
+	<h2>Vote</h2>
+	<p>Select and Vote</p>
 </a></li>
 </ul>
 </div><!-- /content -->
@@ -468,6 +452,125 @@ THE SOFTWARE.
 </div>
 </div>
 </div>
+
+<div ng-app="vote" id="voteDiv" ng-controller="voteCtrl" ng-hide="voteshow">
+<ion-nav-bar class="bar-positive">
+<ion-nav-back-button>
+</ion-nav-back-button>
+</ion-nav-bar>
+<ion-nav-view>
+</ion-nav-view>
+
+<script id="pollList.html" type="text/ng-template">
+	<ion-view view-title="Poll list">
+		<ion-content class="padding">
+			<a class="button icon icon-left ion-chevron-left" ng-click="showAccount()">Account</a>
+			<p></p>
+			<ion-toggle ng-click="togglePoll()" ng-model="pollStatus">
+				<div ng-bind="pollStatusTxt"></div>
+			</ion-toggle>
+			<ion-list>
+				<div ng-repeat="group in groups">
+					<ion-item class="item-stable"
+						ng-click="toggleGroup(group)"
+						ng-class="{active: isGroupShown(group)}">
+						<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+						&nbsp;
+						{{group.name}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Poll: {{group.poll}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Start Date: {{group.timestamp | formatTimestamp}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Finish block height: {{group.finishHeight}}
+					</ion-item>
+					<ion-item ng-show="isGroupShown(group)">
+						<p></p>
+							<a class='button icon icon-right ion-chevron-right' ng-click="showVoting(group);" ng-show="{{!group.finished}}">Cast your vote</a>
+							<a class='button icon icon-right ion-chevron-right' ng-click="showVoting(group)" ng-show="{{group.finished}}">See Results</a>
+						<p></p>
+					</ion-item>
+				</div>
+			</ion-list>
+		</ion-content>	
+	</ion-view>
+</script>
+
+<script id="tabs.html" type="text/ng-template">
+	<ion-tabs class="tabs-icon-top tabs-positive">
+	<ion-tab title="Poll Information" icon="ion-ios-information" href="#/tab/pollInfo">
+		<ion-nav-view name="pollInfo-tab"></ion-nav-view>
+	</ion-tab>
+	<ion-tab title="{{tabName}}" icon="{{tabIcon}}" href="#/tab/castVote">
+		<ion-nav-view name="castVote-tab"></ion-nav-view>
+	</ion-tab>
+	</ion-tabs>
+</script>
+
+<script id="pollInfo.html" type="text/ng-template">
+	<ion-view view-title="Poll Information">
+		<ion-content class="padding">
+			<a class="button icon icon-left ion-chevron-left" href="#pollList">Back</a>
+			<p></p>
+			<p class="item-divider">Poll Name: {{POLL.name}}</p>
+			<p class="item-divider">Description: {{POLL.description}}</p>
+			<p class="item-divider">Minimum number of options: {{POLL.minNumberOfOptions}}</p>
+			<p class="item-divider">Maximum number of options: {{POLL.maxNumberOfOptions}}</p>
+			<p class="item-divider">Minimum balance: {{POLL.minBalance}}</p>
+			<p class="item-divider">Minimum balance model: {{POLL.minBalanceModel}}</p>
+			<p class="item-divider">Voting model: {{POLL.votingModel}}</p>
+		</ion-content>
+	</ion-view>
+</script>
+
+<script id="castVote.html" type="text/ng-template">
+	<ion-view view-title="{{tabTitle}}">
+		<ion-content class="padding">
+			<a class="button icon icon-left ion-chevron-left" href="#pollList">Back</a>
+			<p></p>
+			<p class="item-divider">Description: {{POLL.description}}</p>
+			<div ng-show="showResults()">
+				<div class="ct-chart" id="pollResultPieChart"></div>
+					<div class="list">	
+						<p></p>
+						<strong>Results:</strong>
+						<table>
+							<tr ng-repeat="option in resultOptions.slice().reverse()">
+								<td>{{ option.option }}</td>
+								<td>{{ option.percentage }}%</td>
+							</tr>
+						</table>
+						<p></p>
+					</div>
+				</div>
+				<div ng-show="!showResults()">
+					<p class="item-divider">Choose atleast {{POLL.minNumberOfOptions}} option(s)</p>
+					<ion-checkbox ng-repeat="item in voteCheckBoxList" ng-model="item.value" value=''>
+						<strong>{{ item.text }}</strong>
+					</ion-checkbox>
+					<ion-radio ng-repeat="item in voteRadioBoxList" ng-model="select.name" value={{item.text}}>
+						<strong>{{ item.text }}</strong>
+					</ion-radio>
+					<div class="list">	
+						<div ng-repeat="item in rangeOptionsList">
+							<strong>{{ item.text }}</strong>
+							<div class="item range range-positive" >
+								<input type="range" name="" min={{item.minRangeValue}} max={{item.maxRangeValue}} value='' ng-model="item.value"/>
+							</div>
+						</div>
+					</div>
+					<p>
+						<a class="button" ng-click="submitVote()">Vote</a>
+					</p>
+				</div>
+		</ion-content>
+	</ion-view>
+</script>
+</div>
+
 <script type="text/javascript" src="js/ui/file.js"></script>
 <script type="text/javascript" src="js/ui/address.js"></script>
 <script type="text/javascript" src="js/ui/assetexchange.js"></script>
