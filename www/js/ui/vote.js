@@ -20,347 +20,337 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-var voteList = 'undefined';
-globalPoll = "";
+var SkyNxt = (function(SkyNxt, $, undefined) {
 
-function hidePage()
+SkyNxt.TRANSACTION_TYPE = 0;
+SkyNxt.TYPE_COLORED_COINS = 2; 
+SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT = 2;
+SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT = 3;
+SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION = 4;
+SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION = 5;
+SkyNxt.TYPE_MESSAGING = 1;
+SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING = 3;
+SkyNxt.NO_VOTE_VALUE = -128;	//Byte.MIN_VALUE
+SkyNxt.PAYMENT = "Payment";
+SkyNxt.BUY_ORDER = "Buy Order";
+SkyNxt.SELL_ORDER = "Sell Order";
+SkyNxt.BUY_CANCEL = "Cancel Buy Order";
+SkyNxt.SELL_CANCEL = "Cancel Sell Order";
+SkyNxt.OTHER = "Other";
+
+function getFlags() {
+	var flags = 0;
+	var position = 1;
+	position <<= 1;
+	position <<= 1;
+	position <<= 1;
+	return flags;
+}
+
+function pad(length, value) {
+	var array = [];
+	for (var i = 0; i < length; i++) {
+		array[i] = value;
+	}
+	return array;
+}
+
+function padWithZero(length)
 {
-	$("div#account").hide();
-	angular.element(document.getElementById('voteDiv')).scope().hideAccount();
+	var aZero = [0];
+	var arrayZero = aZero;
+	for (var i = 0; i < length-1; i++) {
+		arrayZero = arrayZero.concat(aZero);
+	}
+	return array;
+}
+
+function areByteArraysEqual(bytes1, bytes2) {
+	if (bytes1.length !== bytes2.length)
+		return false;
+
+	for (var i = 0; i < bytes1.length; ++i) {
+		if (bytes1[i] !== bytes2[i])
+			return false;
+	}
+	return true;
+}
+
+function verifyBytes(signature, message, publicKey) {
+	var signatureBytes = converters.hexStringToByteArray(signature);
+	var messageBytes = converters.hexStringToByteArray(message);
+	var publicKeyBytes = converters.hexStringToByteArray(publicKey);
+	var v = signatureBytes.slice(0, 32);
+	var h = signatureBytes.slice(32);
+	var y = curve25519.verify(v, h, publicKeyBytes);
+
+	var m = SkyNxt.simpleHash(messageBytes);
+
+	SkyNxt._hash.init();
+	SkyNxt._hash.update(m);
+	SkyNxt._hash.update(y);
+	var h2 = SkyNxt._hash.getBytes();
+
+	return areByteArraysEqual(h, h2);
+}
+
+SkyNxt.sendNxtAmt_BuildHex = function(amountNQT, recipientID){
+	//amountNQT = 1000000;
+	//recipientID = "NXT-EMS6-B4DB-E2ZA-8ZPYV"; // testnet
+	var buffer = [];
+	var LONG_BYTE_LENGTH = 8;
+	var TRANSACTION_SUBTYPE = 0;
+	var deadline = 20;
+	var ecBlockHeight = 0;
+	var ecBlockId = 0;
+	var version = 1;
+
+	var hexTrans;
+	var secretPhraseBytes = converters.stringToByteArray(SkyNxt.globalPassPhrase);
+	var digest = SkyNxt.simpleHash(secretPhraseBytes);
+	var publicKey = converters.byteArrayToHexString(curve25519.keygen(digest).p);
+	var timestamp = Math.floor(Date.now() / 1000) - 1385294400;
+	hexTrans = converters.byteArrayToHexString([SkyNxt.TRANSACTION_TYPE]);
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([version << 4]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(converters.int32ToBytes(timestamp)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([160]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([5]));
+	hexTrans = hexTrans.concat(publicKey);
+	
+	var nxtAddr = new NxtAddress();
+	nxtAddr.set(recipientID);
+	var recipient = (new BigInteger(nxtAddr.account_id())).toByteArray().reverse();	
+	recipient = recipient.concat(pad( LONG_BYTE_LENGTH - recipient.length, 0 ));	
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(recipient.slice(0, LONG_BYTE_LENGTH)));
+
+	var amount = (new BigInteger(amountNQT)).toByteArray().reverse();
+	amount = amount.concat(pad(LONG_BYTE_LENGTH - amount.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(amount.slice(0, LONG_BYTE_LENGTH)));	
+	
+	var fee = (new BigInteger(SkyNxt.FEE_NQT)).toByteArray().reverse();
+	fee = fee.concat(pad(LONG_BYTE_LENGTH - fee.length, 0));	
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(fee.slice(0, LONG_BYTE_LENGTH)));
+
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(32,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(64,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(16,0)));
+
+	buffer = converters.hexStringToByteArray(hexTrans);
+	//verifyAndSignTransactionBytes(buffer, "sendnxt");
+	var signature = SkyNxt.signBytes(buffer, SkyNxt.globalPassPhrase);
+	var buffTillSignature = buffer.slice(0, 96);
+	var buffAfterSignature = buffer.slice(96+64);
+	var signed = buffTillSignature;
+	signed = signed.concat(signature);
+	signed = signed.concat(buffAfterSignature);
+	var tx = converters.byteArrayToHexString(signed);
+	
+	broadcastTransaction(tx);
 }
 	
-angular.module('vote', ['ionic'])
-.controller('voteCtrl', function($scope, $state) {
-$scope.voteshow = true;
-console.log($scope.voteshow)
- $scope.hideAccount = function() {
-	  $scope.voteshow = false;
-	  angular.element('#voteDiv').scope().$apply();
-	  $state.go('pollList')
-   }
-   $scope.showAccount = function()
-   {
-		$scope.voteshow = true;
-		angular.element("div#account").show();
-   }
-})
+SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order){
+    assetID = asset.toString();
+	quantityQNT = quantity.toString();
+	priceNQT = price.toString();
+	orderID = order.toString();
+	var buffer = []; var hexTrans;
+	var LONG_BYTE_LENGTH = 8; 
 
-.config(function($stateProvider, $urlRouterProvider) {
-$stateProvider
-.state('pollList', {
-	url: "/pollList",
-	templateUrl: "pollList.html",
-	controller: 'pollListCtrl'
-})
-.state('tabs', {
-	url: "/tab",
-	abstract: true,
-	templateUrl: "tabs.html",
-	controller: "tabCtrl"
-})
-.state('tabs.pollInfo', {
-	url: "/pollInfo",
-	views: {
-	'pollInfo-tab': {
-	  templateUrl: "pollInfo.html",
-	  controller: 'pollInfoTabCtrl'
-	}
-	}
-})
-.state('tabs.castVote', {
-	url: "/castVote",
-	views: {
-	'castVote-tab': {
-	  templateUrl: "castVote.html",
-	  controller: "voteDetailsCtrl"
-	}
-	}
-});
-//$urlRouterProvider.otherwise("pollList");
-})
-.controller('pollListCtrl', function($scope, $ionicLoading, $http, $state, $timeout, $rootScope) {
-	$scope.pollStatus = true;
-	$scope.pollStatusTxt = "Showing active polls";
-	$scope.toggleGroup = function(group) {
-	if ($scope.isGroupShown(group)) {
-	  $scope.shownGroup = null;
-	} else {
-	  $scope.shownGroup = group;
-	}
-	};
+	var amountNQT = 0; var ecBlockHeight = 0; var ecBlockId = 0; var version = 1;
 	
-	$scope.isGroupShown = function(group) {
-		return $scope.shownGroup === group;
-	};  	
-	
-	$scope.showVoting = function(group){
-		globalPoll = group;
-		$state.go('tabs.pollInfo');
-	};
-
-	$scope.populatePollList = function(polls)
+	var secretPhraseBytes = converters.stringToByteArray(SkyNxt.globalPassPhrase);	
+	var digest = SkyNxt.simpleHash(secretPhraseBytes);
+	var publicKey = converters.byteArrayToHexString(curve25519.keygen(digest).p);	
+	var timestamp = Math.floor(Date.now() / 1000) - 1385294400;
+	hexTrans = converters.byteArrayToHexString([SkyNxt.TYPE_COLORED_COINS]);	
+	var bitVersion = version << 4;	
+	if(type == "buy")
+		 hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT]));
+	else if(type == "sell")
+		 hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT]));
+	else if(type == "buy_cancel")
+		 hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION]));
+	else if(type == "sell_cancel")
+		 hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION]));
+	 
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(converters.int32ToBytes(timestamp)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([160]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([5]));
+	hexTrans = hexTrans.concat(publicKey);
+	var nxtAddr = new NxtAddress();
+	nxtAddr.set("1739068987193023818"); //creator ID, Genesis account id
+	var creatorID = (new BigInteger(nxtAddr.account_id())).toByteArray().reverse();
+	creatorID = creatorID.concat(pad( LONG_BYTE_LENGTH - creatorID.length, 0 ));	
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(creatorID.slice(0, LONG_BYTE_LENGTH)));
+	var amount = (new BigInteger(String(amountNQT))).toByteArray().reverse();	
+	amount = amount.concat(pad(LONG_BYTE_LENGTH - amount.length, 0));	
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(amount.slice(0, LONG_BYTE_LENGTH)));
+	var fee = (new BigInteger(SkyNxt.FEE_NQT)).toByteArray().reverse();
+	fee = fee.concat(pad(LONG_BYTE_LENGTH - fee.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(fee.slice(0, LONG_BYTE_LENGTH)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(32,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(64,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(16,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([version]));
+	if(type == "buy" || type == "sell")
 	{
-		$scope.groups = [];
-		for(var i = 0; i < polls.length; i++)
-		{
-			$scope.groups.push(polls[i]);
-		}
-	};
+		var asset = (new BigInteger(assetID)).toByteArray().reverse();
+		asset = asset.concat(pad(LONG_BYTE_LENGTH - asset.length, 0));
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString(asset.slice(0, LONG_BYTE_LENGTH)));
+
+		var quantity = (new BigInteger(quantityQNT)).toByteArray().reverse();
+		quantity = quantity.concat(pad(LONG_BYTE_LENGTH - quantity.length, 0));
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString(quantity.slice(0, LONG_BYTE_LENGTH)));
+
+		var price = (new BigInteger(priceNQT)).toByteArray().reverse();
+		price = price.concat(pad(LONG_BYTE_LENGTH - price.length, 0));
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString(price.slice(0, LONG_BYTE_LENGTH)));
+	}
+	else
+	{   //cancellation of bid\ask orders with orderID as input
+		var order = (new BigInteger(orderID)).toByteArray().reverse();
+		order = order.concat(pad(LONG_BYTE_LENGTH - order.length, 0));
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString(order.slice(0, LONG_BYTE_LENGTH)));	
+	}
 	
-	$scope.togglePoll = function()
+	buffer = converters.hexStringToByteArray(hexTrans);
+	//verifyAndSignTransactionBytes(buffer, "asset");
+	var signature = SkyNxt.signBytes(buffer, SkyNxt.globalPassPhrase);
+	var buffTillSignature = buffer.slice(0, 96);
+	var buffAfterSignature = buffer.slice(96+64);
+	var signed = buffTillSignature; signed = signed.concat(signature); signed = signed.concat(buffAfterSignature);
+	var tx = converters.byteArrayToHexString(signed);
+	broadcastTransaction(tx);
+}
+
+SkyNxt.castVote_BuildHex = function(pollid, vote){
+    pollID = pollid.toString();
+	var buffer = []; var hexTrans;
+	var LONG_BYTE_LENGTH = 8; 
+
+	var amountNQT = 0; var ecBlockHeight = 0; var ecBlockId = 0; var version = 1;
+	
+	var secretPhraseBytes = converters.stringToByteArray(SkyNxt.globalPassPhrase);	
+	var digest = SkyNxt.simpleHash(secretPhraseBytes);
+	var publicKey = converters.byteArrayToHexString(curve25519.keygen(digest).p);	
+	var timestamp = Math.floor(Date.now() / 1000) - 1385294400;
+	hexTrans = converters.byteArrayToHexString([SkyNxt.TYPE_MESSAGING]);	
+	var bitVersion = version << 4;
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([bitVersion | SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(converters.int32ToBytes(timestamp)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([160]));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([5]));
+	hexTrans = hexTrans.concat(publicKey);
+	var nxtAddr = new NxtAddress();
+	nxtAddr.set("1739068987193023818"); //creator ID, Genesis account id
+	var creatorID = (new BigInteger(nxtAddr.account_id())).toByteArray().reverse();
+	creatorID = creatorID.concat(pad( LONG_BYTE_LENGTH - creatorID.length, 0 ));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(creatorID.slice(0, LONG_BYTE_LENGTH)));
+	var amount = (new BigInteger(String(amountNQT))).toByteArray().reverse();
+	amount = amount.concat(pad(LONG_BYTE_LENGTH - amount.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(amount.slice(0, LONG_BYTE_LENGTH)));
+	var fee = (new BigInteger(SkyNxt.FEE_NQT)).toByteArray().reverse();
+	fee = fee.concat(pad(LONG_BYTE_LENGTH - fee.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(fee.slice(0, LONG_BYTE_LENGTH)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(32,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(64,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(16,0)));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([version]));
+	
+	var poll = (new BigInteger(pollID)).toByteArray().reverse();
+	poll = poll.concat(pad(LONG_BYTE_LENGTH - poll.length, 0));
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString(poll.slice(0, LONG_BYTE_LENGTH)));
+
+	hexTrans = hexTrans.concat(converters.byteArrayToHexString([vote.length]));
+
+	for(var i = 0; i < vote.length; i++)
 	{
-		$scope.pollStatus = !$scope.pollStatus;
-		
-		if($scope.pollStatus)
-		{
-			$scope.pollStatusTxt = "Showing active polls";
-			var activePolls = voteList.find({ 'finished': false });
-			$scope.populatePollList(activePolls);
-		}
-		else
-		{
-			$scope.pollStatusTxt = "Showing finished polls";
-			var finishedPolls = voteList.find({ 'finished': true });
-			$scope.populatePollList(finishedPolls);
-		}
+		hexTrans = hexTrans.concat(converters.byteArrayToHexString([vote[i]]));
 	}
-
-	$ionicLoading.show({
-		duration: 30000,
-		noBackdrop: true,
-		template: '<ion-spinner icon="android"></ion-spinner>'
-	});
 	
-    
-	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPolls&includeFinished=true")	
-    .success(function(response) {
-		voteList = SkyNxt.database.addCollection('votelist');
-		$ionicLoading.hide();
-		$scope.groups = [];
-		for (var i=0; i < response.polls.length; i++) {
-			var pollObj = response.polls[i];
-			voteList.insert({minRangeValue:pollObj.minRangeValue,votingModel:pollObj.votingModel,description:pollObj.description,finished:pollObj.finished,poll:pollObj.poll,minNumberOfOptions:pollObj.minNumberOfOptions,minBalance:pollObj.minBalance,accountRS:pollObj.accountRS,name:pollObj.name,options:pollObj.options,finishHeight:pollObj.finishHeight,maxNumberOfOptions:pollObj.maxNumberOfOptions,minBalanceModel:pollObj.minBalanceModel,account:pollObj.account,maxRangeValue:pollObj.maxRangeValue,timestamp:pollObj.timestamp});
+	buffer = converters.hexStringToByteArray(hexTrans);
+	//verifyAndSignTransactionBytes(buffer, "vote");
+	var signature = SkyNxt.signBytes(buffer, SkyNxt.globalPassPhrase);
+	var buffTillSignature = buffer.slice(0, 96);
+	var buffAfterSignature = buffer.slice(96+64);
+	var signed = buffTillSignature; signed = signed.concat(signature); signed = signed.concat(buffAfterSignature);
+	var tx = converters.byteArrayToHexString(signed);
+	broadcastTransaction(tx);
+}
 
-			if(pollObj.finished == false)
-			{
-				$scope.groups.push(pollObj);
-			}
+function verifyAndSignTransactionBytes(byteArray, type) {
+	var transaction = {};
+	transaction.type = byteArray[0];
+	transaction.version = (byteArray[1] & 0xF0) >> 4;
+	transaction.subtype = byteArray[1] & 0x0F;
+	transaction.timestamp = String(converters.byteArrayToSignedInt32(byteArray, 2));
+	transaction.deadline = String(converters.byteArrayToSignedShort(byteArray, 6));
+	transaction.publicKey = converters.byteArrayToHexString(byteArray.slice(8, 40));
+	transaction.recipient = String(converters.byteArrayToBigInteger(byteArray, 40));
+	transaction.amountNQT = String(converters.byteArrayToBigInteger(byteArray, 48));
+	transaction.feeNQT = String(converters.byteArrayToBigInteger(byteArray, 56));
+	var refHash = byteArray.slice(64, 96);
+	transaction.referencedTransactionFullHash = converters.byteArrayToHexString(refHash);
+	if (transaction.referencedTransactionFullHash == "0000000000000000000000000000000000000000000000000000000000000000") {
+		transaction.referencedTransactionFullHash = "";
+	}
+	transaction.flags = 0;
+	if (transaction.version > 0) {
+		transaction.flags = converters.byteArrayToSignedInt32(byteArray, 160);
+		transaction.ecBlockHeight = String(converters.byteArrayToSignedInt32(byteArray, 164));
+		transaction.ecBlockId = String(converters.byteArrayToBigInteger(byteArray, 168));
+	}
+	if(type == "asset")
+	{
+		transaction.ver = (byteArray[176] & 0xF0) >> 4;
+		transaction.assetId = String(converters.byteArrayToBigInteger(byteArray, 177));
+		transaction.quantityQNT = String(converters.byteArrayToBigInteger(byteArray, 185));
+		transaction.priceNQT = String(converters.byteArrayToBigInteger(byteArray, 193));
+	}
+	if(type == "vote")
+	{
+		transaction.ver = (byteArray[176] & 0xF0) >> 4;
+		transaction.pollid = String(converters.byteArrayToBigInteger(byteArray, 177));
+		transaction.length = String(byteArray[185]);
+		transaction.vote = [];
+		var index = 0;
+		for(var i = 186; i < transaction.length; i++)
+		{
+			transaction.vote[index++] = String(byteArray[i]);
 		}
-	});
-})
-.controller('tabCtrl', function($rootScope, $scope, $ionicLoading, $http) {
-$scope.$on('$ionicView.enter', function(){  
-var pollInfo = voteList.find({ 'poll': globalPoll.poll });
-$scope.POLL = pollInfo[0];
-if(!$scope.POLL.finished){
-		$scope.tabName = "Cast Vote";
-		$scope.tabIcon = "ion-speakerphone";
 	}
-	else{
-		$scope.tabName = "Results";
-		$scope.tabIcon = "ion-pie-graph";
-	}
+}
 
-$scope.resultOptions = [];
-$scope.rangeOptionsList = [];
-$scope.voteCheckBoxList = [];
-$scope.voteRadioBoxList = [];
-console.log($scope.POLL.finished)
-if($scope.POLL.finished == false)
+function broadcastTransaction(tx)
 {
-	$scope.tabTitle = "Cast Vote";
-	if(parseInt($scope.POLL.maxRangeValue) > 1)
-	{		
-		for(var i = 0; i < $scope.POLL.options.length; i++)
-		{
-			var item = { text: $scope.POLL.options[i], minRangeValue: $scope.POLL.minRangeValue, maxRangeValue: $scope.POLL.maxRangeValue};
-			$scope.rangeOptionsList.push(item);
-		}
-	}
-	else if(parseInt($scope.POLL.maxNumberOfOptions) == 1)
-	{
-		for(var i = 0; i < $scope.POLL.options.length; i++)
-		{
-			var item = { text: $scope.POLL.options[i]};
-			$scope.voteRadioBoxList.push(item);
-		}
-	}
-	else
-	{
-		for(var i = 0; i < $scope.POLL.options.length; i++)
-		{
-			var item = { text: $scope.POLL.options[i] };
-			$scope.voteCheckBoxList.push(item);
-		}
-	}
- }
- else
- {
-	$scope.tabTitle = "Results";
- }
-});
-})
-.controller('pollInfoTabCtrl', function($scope, $rootScope) {
-})
-.controller('voteDetailsCtrl', function($scope, $rootScope, $ionicLoading, $http, $ionicPopup) {
-$scope.select = {name : ''};
-$scope.showResults = function(){
-	return globalPoll.finished;
+	var url = SkyNxt.ADDRESS +'/nxt?requestType=broadcastTransaction&transactionBytes=' + tx;
+	$.ajax({
+			url: url,
+			crossDomain: true,
+			type: "POST",
+			async: true
+		}).done(function(json) {
+			if (json.errorCode && !json.errorDescription) {
+				json.errorDescription = (json.errorMessage ? json.errorMessage : $.t("server_error_unknown"));
+			}
+			var parsedjson = $.parseJSON(json);
+		}).fail(function(xhr, textStatus, error) {
+			
+		});
 }
-$scope.submitVote = function(){
-	var pollInfo = voteList.find({ 'poll': globalPoll.poll });
-	pollInfo = pollInfo[0];
-	var votes = [];
-	var selectedOptions = "";
-	var minOptions = 0;
-	if(parseInt(pollInfo.maxRangeValue) > 1)
-	{
-		for(var i = 0; i < $scope.rangeOptionsList.length; i++)	{
-			if($scope.rangeOptionsList[i].value)
-			{
-				selectedOptions = selectedOptions + "<br>" + $scope.rangeOptionsList[i].text + ": " + $scope.rangeOptionsList[i].value;
-				votes.push($scope.rangeOptionsList[i].value);
-				minOptions++;
-			}
-			else
-			{
-				selectedOptions = selectedOptions + "<br>" + $scope.rangeOptionsList[i].text + ": No vote";
-				votes.push(-128);
-			}
-		}
-	}
-	else if(parseInt(pollInfo.maxNumberOfOptions) == 1)
-	{
-		if($scope.select.name != '')
-		{
-			for(var i = 0; i < $scope.voteRadioBoxList.length; i++)	{
-				if($scope.voteRadioBoxList[i].text == $scope.select.name)
-				{
-					selectedOptions = selectedOptions + "<br>" + $scope.voteRadioBoxList[i].text + ": 1";
-					votes.push(1); //??????? is this value correct or just be value 1
-					minOptions++;
-				}
-				else
-				{
-					selectedOptions = selectedOptions + "<br>" + $scope.voteRadioBoxList[i].text + ": No vote";
-					votes.push(-128);
-				}
-			}
-		}
-	}
-	else
-	{
-		for(var i = 0; i < $scope.voteCheckBoxList.length; i++)	{
-			if($scope.voteCheckBoxList[i].value == true)
-			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote YES";
-				votes.push(1); //????????
-				minOptions++;
-			}
-			else if($scope.voteCheckBoxList[i].value == false)
-			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote NO";
-				votes.push(0); //????????
-				minOptions++;
-			}
-			else
-			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": No vote";
-				votes.push(-128);
-			}
-		}
-	}
-	if(minOptions < globalPoll.minNumberOfOptions)
-	{
-		var alertPopup = $ionicPopup.alert({
-			title: 'Minimum vote options',
-			template: 'You have choosen ' + minOptions + ' option(s), but you need to choose atleast ' + globalPoll.minNumberOfOptions + ' option(s) to vote'
-		});
-		alertPopup.then(function(res) {
-		});
-	}
-	else
-	{
-		var confirmPopup = $ionicPopup.confirm({
-			title: 'Confirm Vote',
-			template: 'Vote with following options?' + selectedOptions
-		});	
-		confirmPopup.then(function(res) {
-			if(res) {
-				SkyNxt.castVote_BuildHex(globalPoll.poll, votes);
-				console.log('You are sure');
-			} 
-		});
-	}
-	console.log(votes)
-};
-$scope.$on('$ionicView.enter', function(){
-if(globalPoll.finished){
-	var pollInfo = voteList.find({ 'poll': globalPoll.poll });
-	$scope.POLL = pollInfo[0];
 
-    $ionicLoading.show({
-      duration: 30000,
-      noBackdrop: true,
-      template: '<ion-spinner icon="android"></ion-spinner>'
-    });
-	
-	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPollResult&poll=" + $scope.POLL.poll)
-    .success(function(pollResult) {	
-		$ionicLoading.hide();
-		var datapoints = [];
-		var totalWeight = 0;
-		var totalResult = 0;
-		for(var i = 0; i < pollResult.options.length; i++)
-		{
-			var result = 0;
-			var weight = 0;
-			if(pollResult.results[i].result != "")
-			{
-				result = pollResult.results[i].result;
-			}
-			if(pollResult.results[i].weight != "")
-			{
-				weight = pollResult.results[i].weight;
-			}
-			datapoints.push(result);
-			totalWeight = totalWeight + weight;
-			totalResult	= totalResult + result;
-		}
-		var totalDatabpointSum = 0;
-		if(totalWeight > 0)
-		{
-			SkyNxt.database.removeCollection('resultoptions');
-			var results = SkyNxt.database.addCollection('resultoptions');
-			for(var i = 0; i < datapoints.length; i++)
-			{
-				datapoints[i] = datapoints[i] / totalWeight;
-				totalDatabpointSum = totalDatabpointSum + datapoints[i];
-			}
-			for(var i = 0; i < datapoints.length; i++)
-			{
-				results.insert({option:pollResult.options[i], percentage:Math.round((datapoints[i]/totalDatabpointSum)*100)});
-			}
-			$scope.resultOptions = results.chain().simplesort("percentage").data();
-		}
-		var data = {
-		  series: datapoints
-		};
-
-		var sum = function(a, b) { return a + b };
-
-		new Chartist.Pie('#pollResultPieChart', data, {
-		  labelInterpolationFnc: function(value) {
-			return Math.round(value / data.series.reduce(sum) * 100) + '%';
-		  }
-		});
-	});
-	
+SkyNxt.getType = function(type, subtype) {
+if(type == SkyNxt.TRANSACTION_TYPE)
+		return SkyNxt.PAYMENT;
+if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT)
+		return SkyNxt.SELL_ORDER;
+if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
+		return SkyNxt.BUY_ORDER;
+if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
+		return SkyNxt.SELL_CANCEL;
+if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)
+		return SkyNxt.BUY_CANCEL;
+return SkyNxt.OTHER;
 }
-});
-})
-.filter('formatTimestamp', function formatTimestamp($filter){
-  return function(text){
-    return NRS.formatTimestamp(parseInt(text));
-  }
-});
+	return SkyNxt;
+ }(SkyNxt || {}, jQuery));
