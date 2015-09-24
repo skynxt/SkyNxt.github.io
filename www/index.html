@@ -134,7 +134,7 @@ THE SOFTWARE.
 </head>
 <body>
  
-<div data-role="page" id="login">
+<div data-url="login" data-role="page" id="login">
 <div data-role="header"><h1>SkyNxt</h1>
 <a href="#settings" id="setting_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-right">Settings</a>
 </div>
@@ -157,7 +157,7 @@ THE SOFTWARE.
 <div data-url="settings" data-role="page" id="settings" >
 <div data-role="header">
 	<h1>Settings</h1>	
-	<a href="./index.html" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
+	<a href="#login" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
 </div><!-- /header -->
 <div role="main" class="ui-content">
 	<h3>Peer\Node settings</h3>
@@ -196,7 +196,7 @@ THE SOFTWARE.
 <div data-url="account" data-role="page" id="account" >
 <div data-role="header">
 	<h1>Account</h1>	
-	<a href="./index.html" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
+	<a href="#login" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
 </div><!-- /header -->
 <div role="main" class="ui-content">
  <h3  style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD" id="accountNxtAddress"></h3>
@@ -235,7 +235,7 @@ THE SOFTWARE.
 
 <div class="ui-grid-a ui-field-contain">
 <div class=ui-block-a style="width: 85% !important;"><input name="recipient_address" id="recipient_address" type="text" placeholder="Recipient Nxt Address"></input></div>
-<div class=ui-block-b style="width: 15% !important;">&nbsp&nbsp<a href="#" onclick="SkyNxt.scanBarCode()" id="barcodeScanner" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a></div>
+<div class=ui-block-b style="width: 15% !important;"> &nbsp &nbsp <a href="#" onclick="SkyNxt.scanBarCode()" id="barcodeScanner" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a></div>
 <div class=ui-block-a style="width: 85% !important;"><input name="send_amount" id="send_amount" placeholder="Amount to Send"></input></div>
 <div class=ui-block-b style="width: 15% !important;"></div>
 </div>	
@@ -540,7 +540,7 @@ THE SOFTWARE.
 						<table>
 							<tr ng-repeat="option in resultOptions.slice().reverse()">
 								<td>{{ option.option }}</td>
-								<td>{{ option.percentage }}%</td>
+								<td>&nbsp;&nbsp;{{ option.percentage }}%</td>
 							</tr>
 						</table>
 						<p></p>
