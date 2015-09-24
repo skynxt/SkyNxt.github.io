@@ -30,18 +30,19 @@ function hidePage()
 }
 	
 angular.module('vote', ['ionic'])
-.controller('voteCtrl', function($scope) {
+.controller('voteCtrl', function($scope, $state) {
 $scope.voteshow = true;
 console.log($scope.voteshow)
  $scope.hideAccount = function() {
 	  $scope.voteshow = false;
-	  angular.element('#voteDiv').scope().$apply() 
+	  angular.element('#voteDiv').scope().$apply();
+	  $state.go('pollList')
    }
    $scope.showAccount = function()
    {
 		$scope.voteshow = true;
 		angular.element("div#account").show();
-   }   
+   }
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -75,7 +76,7 @@ $stateProvider
 	}
 	}
 });
-$urlRouterProvider.otherwise("pollList");
+//$urlRouterProvider.otherwise("pollList");
 })
 .controller('pollListCtrl', function($scope, $ionicLoading, $http, $state, $timeout, $rootScope) {
 	$scope.pollStatus = true;
@@ -252,13 +253,13 @@ $scope.submitVote = function(){
 		for(var i = 0; i < $scope.voteCheckBoxList.length; i++)	{
 			if($scope.voteCheckBoxList[i].value == true)
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": 1";
+				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote YES";
 				votes.push(1); //????????
 				minOptions++;
 			}
 			else if($scope.voteCheckBoxList[i].value == false)
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": 0";
+				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote NO";
 				votes.push(0); //????????
 				minOptions++;
 			}
@@ -286,6 +287,7 @@ $scope.submitVote = function(){
 		});	
 		confirmPopup.then(function(res) {
 			if(res) {
+				SkyNxt.castVote_BuildHex(globalPoll.poll, votes);
 				console.log('You are sure');
 			} 
 		});
