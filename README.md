@@ -5,6 +5,9 @@ This application supports following operations.
 
 1. Send Nxt to an recipient.
 2. Buy\Sell asset in Nxt asset exchange.
+3. Voting.
+4. Messaging.
+5. Account transactions.
 
 Signing is done client side before broadcasting transactions.
 
