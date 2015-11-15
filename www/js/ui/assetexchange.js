@@ -112,7 +112,7 @@ $stateProvider
 		template: '<ion-spinner icon="spiral"></ion-spinner>'
 	});
 	
-	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountAssets&account=' + SkyNxt.globalAddress)
+	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountAssets&account=' + SkyNxt.globalAddress + "&includeAssetInfo=true")
     .success(function(response) {
 		SkyNxt.database.removeCollection('assets');
 		assetsdb = SkyNxt.database.addCollection('assets');			

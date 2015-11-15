@@ -75,7 +75,7 @@ $stateProvider
 		template: '<ion-spinner icon="spiral"></ion-spinner>'
 	});
 	
-	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountTransactions&account=' + SkyNxt.globalAddress)
+	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getBlockchainTransactions&account=' + SkyNxt.globalAddress)
     .success(function(response) {
 		SkyNxt.database.removeCollection('transactions');
 		transactionsdb = SkyNxt.database.addCollection('transactions');			

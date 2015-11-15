@@ -54,7 +54,7 @@ SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
 		template: '<ion-spinner icon="spiral"></ion-spinner>'
 	});
 	
-	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountTransactions&type=' + SkyNxt.TYPE_MESSAGING + '&subtype=' + SkyNxt.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE + '&account=' + SkyNxt.globalAddress + '&timestamp=0')
+	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getBlockchainTransactions&type=' + SkyNxt.TYPE_MESSAGING + '&subtype=' + SkyNxt.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE + '&account=' + SkyNxt.globalAddress + '&timestamp=0')
     .success(function(response) {
 		SkyNxt.database.removeCollection('senderdb');
 		sendersDB = SkyNxt.database.addCollection('senderdb');
