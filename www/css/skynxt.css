@@ -1,97 +1,69 @@
-		/*override chartist options*/
-		.ct-series-a .ct-line {
-		  /* Set the colour of this series line */
-		  stroke: rgba(151,187,205,1);
-		  /* Control the thikness of your lines */
-		  stroke-width: 1.5px;
-		  /* Create a dashed line with a pattern */
-		  /*stroke-dasharray: 10px 20px;*/
-		}
+/*override chartist options*/
+.ct-series-a .ct-line {
+  /* Set the colour of this series line */
+  stroke: rgba(151,187,205,1);
+  /* Control the thikness of your lines */
+  stroke-width: 1.5px;
+  /* Create a dashed line with a pattern */
+  /*stroke-dasharray: 10px 20px;*/
+}
 
-		.ct-series-a .ct-point {
-		  /* Colour of your points */
-		  stroke: rgba(151,187,205,1);
-		  /* Size of your points */
-		  stroke-width: 3.5px;
-		  /* Make your points appear as squares */
-		  stroke-linecap: square;
-		}	
-		.ct-square:before{padding-bottom:125%}
-		.ct-label{color:rgba(151,187,205,1);}
-		.list .item.item-accordion {
-			line-height: 38px;
-			padding-top: 0;
-			padding-bottom: 0;
-			transition: 0.09s all linear;
-		}
-		.list .item.item-accordion.ng-hide {
-			line-height: 0px;
-		}
-		.list .item.item-accordion.ng-hide-add,
-		.list .item.item-accordion.ng-hide-remove {
-			display: block !important;
-		}	
-		.item-icon-left ion-spinner {
-			float: left;
-			margin-left: -3.2em;
-			margin-right: 1em;
-			margin-top: -0.2em;
-		}
+.ct-series-a .ct-point {
+  /* Colour of your points */
+  stroke: rgba(151,187,205,1);
+  /* Size of your points */
+  stroke-width: 3.5px;
+  /* Make your points appear as squares */
+  stroke-linecap: square;
+}	
+.ct-square:before{padding-bottom:125%}
+.ct-label{color:rgba(151,187,205,1);}
 
-		.spinner svg {
-			width: 28px;
-			height: 28px;
-			stroke: #999;
-			fill: #999;
-		}
+table, th , td  {
+	border: 1px solid grey;
+	border-collapse: collapse;
+	padding: 5px;
+}
+table tr:nth-child(odd)	{
+	background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+	background-color: #ffffff;
+}
 
-		table, th , td  {
-			border: 1px solid grey;
-			border-collapse: collapse;
-			padding: 5px;
-		}
-		table tr:nth-child(odd)	{
-			background-color: #f1f1f1;
-		}
-		table tr:nth-child(even) {
-			background-color: #ffffff;
-		}
-		
-		.list .item.item-accordion {
-			line-height: 38px;
-			padding-top: 0;
-			padding-bottom: 0;
-			transition: 0.09s all linear;
-		}
-		.list .item.item-accordion.ng-hide {
-			line-height: 0px;
-		}
-		.list .item.item-accordion.ng-hide-add,
-		.list .item.item-accordion.ng-hide-remove {
-			display: block !important;
-		}	
-		.item-icon-left ion-spinner {
-			float: left;
-			margin-left: -3.2em;
-			margin-right: 1em;
-			margin-top: -0.2em;
-		}
+.list .item.item-accordion {
+	line-height: 38px;
+	padding-top: 0;
+	padding-bottom: 0;
+	transition: 0.09s all linear;
+}
+.list .item.item-accordion.ng-hide {
+	line-height: 0px;
+}
+.list .item.item-accordion.ng-hide-add,
+.list .item.item-accordion.ng-hide-remove {
+	display: block !important;
+}	
+.item-icon-left ion-spinner {
+	float: left;
+	margin-left: -3.2em;
+	margin-right: 1em;
+	margin-top: -0.2em;
+}
 
-		.spinner svg {
-			width: 28px;
-			height: 28px;
-			stroke: #999;
-			fill: #999;
-		}
+.spinner svg {
+	width: 28px;
+	height: 28px;
+	stroke: #999;
+	fill: #999;
+}
 
-		table, th , td  {
-			border: 1px solid grey;
-			border-collapse: collapse;
-			padding: 5px;
-		}
-		table tr:nth-child(odd)	{
-			background-color: #f1f1f1;
-		}
-		table tr:nth-child(even) {
-			background-color: #ffffff;
-		}		
+.gridstyle{
+	border: 1px solid grey;" 
+}
+.gridstyle:nth-child(odd)	{
+	background-color: #f1f1f1;			
+}
+.gridstyle:nth-child(even)	{
+	background-color: #ffffff;			
+}

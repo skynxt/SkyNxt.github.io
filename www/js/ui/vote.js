@@ -22,29 +22,8 @@
 
 var voteList = 'undefined';
 globalPoll = "";
-
-function hidePage()
-{
-	$("div#account").hide();
-	angular.element(document.getElementById('voteDiv')).scope().hideAccount();
-}
-	
-angular.module('vote', ['ionic'])
-.controller('voteCtrl', function($scope, $state) {
-$scope.voteshow = true;
-console.log($scope.voteshow)
- $scope.hideAccount = function() {
-	  $scope.voteshow = false;
-	  angular.element('#voteDiv').scope().$apply();
-	  $state.go('pollList')
-   }
-   $scope.showAccount = function()
-   {
-		$scope.voteshow = true;
-		angular.element("div#account").show();
-   }
+SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
 })
-
 .config(function($stateProvider, $urlRouterProvider) {
 $stateProvider
 .state('pollList', {
@@ -58,15 +37,6 @@ $stateProvider
 	templateUrl: "tabs.html",
 	controller: "tabCtrl"
 })
-.state('tabs.pollInfo', {
-	url: "/pollInfo",
-	views: {
-	'pollInfo-tab': {
-	  templateUrl: "pollInfo.html",
-	  controller: 'pollInfoTabCtrl'
-	}
-	}
-})
 .state('tabs.castVote', {
 	url: "/castVote",
 	views: {
@@ -75,12 +45,20 @@ $stateProvider
 	  controller: "voteDetailsCtrl"
 	}
 	}
+})
+.state('tabs.pollInfo', {
+	url: "/pollInfo",
+	views: {
+	'pollInfo-tab': {
+	  templateUrl: "pollInfo.html",
+	  controller: 'pollInfoTabCtrl'
+	}
+	}
 });
-//$urlRouterProvider.otherwise("pollList");
 })
 .controller('pollListCtrl', function($scope, $ionicLoading, $http, $state, $timeout, $rootScope) {
 	$scope.pollStatus = true;
-	$scope.pollStatusTxt = "Showing active polls";
+	$scope.pollStatusTxt = "Active polls";
 	$scope.toggleGroup = function(group) {
 	if ($scope.isGroupShown(group)) {
 	  $scope.shownGroup = null;
@@ -95,7 +73,7 @@ $stateProvider
 	
 	$scope.showVoting = function(group){
 		globalPoll = group;
-		$state.go('tabs.pollInfo');
+		$state.go('tabs.castVote');
 	};
 
 	$scope.populatePollList = function(polls)
@@ -113,13 +91,13 @@ $stateProvider
 		
 		if($scope.pollStatus)
 		{
-			$scope.pollStatusTxt = "Showing active polls";
+			$scope.pollStatusTxt = "Active polls";
 			var activePolls = voteList.find({ 'finished': false });
 			$scope.populatePollList(activePolls);
 		}
 		else
 		{
-			$scope.pollStatusTxt = "Showing finished polls";
+			$scope.pollStatusTxt = "Finished polls";
 			var finishedPolls = voteList.find({ 'finished': true });
 			$scope.populatePollList(finishedPolls);
 		}
@@ -134,6 +112,7 @@ $stateProvider
     
 	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPolls&includeFinished=true")	
     .success(function(response) {
+		SkyNxt.database.removeCollection('votelist');
 		voteList = SkyNxt.database.addCollection('votelist');
 		$ionicLoading.hide();
 		$scope.groups = [];
@@ -146,10 +125,20 @@ $stateProvider
 				$scope.groups.push(pollObj);
 			}
 		}
-	});
+	})
+	.error(function(response) {
+	});	
+
 })
 .controller('tabCtrl', function($rootScope, $scope, $ionicLoading, $http) {
+$scope.POLL = "";
+$scope.tabName = "";
+$scope.tabIcon = "";
 $scope.$on('$ionicView.enter', function(){  
+	$scope.refresh();
+});
+
+$scope.refresh = function(){
 var pollInfo = voteList.find({ 'poll': globalPoll.poll });
 $scope.POLL = pollInfo[0];
 if(!$scope.POLL.finished){
@@ -165,12 +154,10 @@ $scope.resultOptions = [];
 $scope.rangeOptionsList = [];
 $scope.voteCheckBoxList = [];
 $scope.voteRadioBoxList = [];
-console.log($scope.POLL.finished)
 if($scope.POLL.finished == false)
 {
-	$scope.tabTitle = "Cast Vote";
 	if(parseInt($scope.POLL.maxRangeValue) > 1)
-	{		
+	{
 		for(var i = 0; i < $scope.POLL.options.length; i++)
 		{
 			var item = { text: $scope.POLL.options[i], minRangeValue: $scope.POLL.minRangeValue, maxRangeValue: $scope.POLL.maxRangeValue};
@@ -194,15 +181,13 @@ if($scope.POLL.finished == false)
 		}
 	}
  }
- else
- {
-	$scope.tabTitle = "Results";
- }
-});
+}
 })
 .controller('pollInfoTabCtrl', function($scope, $rootScope) {
 })
 .controller('voteDetailsCtrl', function($scope, $rootScope, $ionicLoading, $http, $ionicPopup) {
+var pollInfo = voteList.find({ 'poll': globalPoll.poll });
+$scope.selectedPoll = pollInfo[0];
 $scope.select = {name : ''};
 $scope.showResults = function(){
 	return globalPoll.finished;
@@ -212,19 +197,18 @@ $scope.submitVote = function(){
 	pollInfo = pollInfo[0];
 	var votes = [];
 	var selectedOptions = "";
-	var minOptions = 0;
+	var votedOptions = 0;
 	if(parseInt(pollInfo.maxRangeValue) > 1)
 	{
 		for(var i = 0; i < $scope.rangeOptionsList.length; i++)	{
 			if($scope.rangeOptionsList[i].value)
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.rangeOptionsList[i].text + ": " + $scope.rangeOptionsList[i].value;
+				selectedOptions = selectedOptions + "<br>" + $scope.rangeOptionsList[i].text + ": " + "<strong>"  + $scope.rangeOptionsList[i].value + "</strong>" ;
 				votes.push($scope.rangeOptionsList[i].value);
-				minOptions++;
+				votedOptions++;
 			}
 			else
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.rangeOptionsList[i].text + ": No vote";
 				votes.push(-128);
 			}
 		}
@@ -236,13 +220,12 @@ $scope.submitVote = function(){
 			for(var i = 0; i < $scope.voteRadioBoxList.length; i++)	{
 				if($scope.voteRadioBoxList[i].text == $scope.select.name)
 				{
-					selectedOptions = selectedOptions + "<br>" + $scope.voteRadioBoxList[i].text + ": Vote YES";
+					selectedOptions = selectedOptions + "<br>" + $scope.voteRadioBoxList[i].text + "<strong>" + ": Vote YES" + "</strong>" ;
 					votes.push(1); //??????? is this value correct or just be value 1
-					minOptions++;
+					votedOptions++;
 				}
 				else
 				{
-					selectedOptions = selectedOptions + "<br>" + $scope.voteRadioBoxList[i].text + ": No vote";
 					votes.push(-128);
 				}
 			}
@@ -253,28 +236,36 @@ $scope.submitVote = function(){
 		for(var i = 0; i < $scope.voteCheckBoxList.length; i++)	{
 			if($scope.voteCheckBoxList[i].value == true)
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote YES";
+				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + "<strong>" + ": Vote YES" + "</strong>";
 				votes.push(1); //????????
-				minOptions++;
+				votedOptions++;
 			}
 			else if($scope.voteCheckBoxList[i].value == false)
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": Vote NO";
+				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + "<strong>" + ": Vote NO" + "</strong>" ;
 				votes.push(0); //????????
-				minOptions++;
+				votedOptions++;
 			}
 			else
 			{
-				selectedOptions = selectedOptions + "<br>" + $scope.voteCheckBoxList[i].text + ": No vote";
 				votes.push(-128);
 			}
 		}
 	}
-	if(minOptions < globalPoll.minNumberOfOptions)
+	if(votedOptions < globalPoll.minNumberOfOptions)
 	{
 		var alertPopup = $ionicPopup.alert({
 			title: 'Minimum vote options',
-			template: 'You have choosen ' + minOptions + ' option(s), but you need to choose atleast ' + globalPoll.minNumberOfOptions + ' option(s) to vote'
+			template: 'You have choosen ' + votedOptions + ' option(s), but you need to choose atleast ' + globalPoll.minNumberOfOptions + ' option(s) to vote'
+		});
+		alertPopup.then(function(res) {
+		});
+	}
+	else if(votedOptions > globalPoll.maxNumberOfOptions)
+	{
+		var alertPopup = $ionicPopup.alert({
+			title: 'Maximum vote options',
+			template: 'You have choosen ' + votedOptions + ' option(s), but you need to choose only ' + globalPoll.maxNumberOfOptions + ' option(s) to vote.' + "<br>" + "You can reset using the refresh button and vote again."
 		});
 		alertPopup.then(function(res) {
 		});
@@ -288,16 +279,14 @@ $scope.submitVote = function(){
 		confirmPopup.then(function(res) {
 			if(res) {
 				SkyNxt.castVote_BuildHex(globalPoll.poll, votes);
-				console.log('You are sure');
 			} 
 		});
 	}
-	console.log(votes)
 };
 $scope.$on('$ionicView.enter', function(){
 if(globalPoll.finished){
 	var pollInfo = voteList.find({ 'poll': globalPoll.poll });
-	$scope.POLL = pollInfo[0];
+	$scope.selectedPoll = pollInfo[0];
 
     $ionicLoading.show({
       duration: 30000,
@@ -305,7 +294,7 @@ if(globalPoll.finished){
       template: '<ion-spinner icon="android"></ion-spinner>'
     });
 	
-	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPollResult&poll=" + $scope.POLL.poll)
+	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPollResult&poll=" + $scope.selectedPoll.poll)
     .success(function(pollResult) {	
 		$ionicLoading.hide();
 		var datapoints = [];
@@ -355,12 +344,6 @@ if(globalPoll.finished){
 		  }
 		});
 	});
-	
 }
 });
 })
-.filter('formatTimestamp', function formatTimestamp($filter){
-  return function(text){
-    return NRS.formatTimestamp(parseInt(text));
-  }
-});

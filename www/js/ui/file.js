@@ -30,9 +30,6 @@ SkyNxt.FILE_ENTRY = 'undefined';
 SkyNxt.PEER_SETTINGS = 'peerSettings';
 SkyNxt.PEER_SETTING_AUTO = 'auto';
 SkyNxt.PEER_SETTING_IP_PORT = '';
-SkyNxt.UI_THEME = 'uiTheme';
-SkyNxt.UI_THEME_LIGHT = 'a';
-SkyNxt.UI_THEME_DARK = 'b';
 SkyNxt.TRUSTED_PEERS = 'trustedPeers';
 SkyNxt.HTTP_NODE = 'http://';
 SkyNxt.HTTPS_NODE = 'https://';
@@ -82,24 +79,20 @@ function readAsText(file) {
 	reader.onloadend = function(evt) {
 		SkyNxt.usersettings.loadJSON(evt.target.result);
 		var userdbs = SkyNxt.usersettings.getCollection(SkyNxt.USER_SETTING_COLLECTION);
-		var uiTheme = userdbs.findOne({'key' : SkyNxt.UI_THEME});
-		SkyNxt.SAVED_UI_THEME = uiTheme.value;		
-		$("#" + SkyNxt.SAVED_UI_THEME).prop("checked", true);
-		changeTheme(String(SkyNxt.SAVED_UI_THEME));
 		var trustedPeerdata = userdbs.findOne({'key' : SkyNxt.TRUSTED_PEERS});		
 		SkyNxt.PEER_IP = trustedPeerdata.value.split(',');
 		
 		if(String(SkyNxt.PEER_IP[0]) == String(SkyNxt.HTTPS_NODE) || String(SkyNxt.PEER_IP[0]) == String(SkyNxt.HTTP_NODE))
 		{	
-			$("#nodeIP").val(String(SkyNxt.PEER_IP[1]));			
+			/*$("#nodeIP").val(String(SkyNxt.PEER_IP[1]));			
 			$("#port").val(String(SkyNxt.PEER_IP[2]));
 			SkyNxt.ADDRESS = SkyNxt.PEER_IP[0] + SkyNxt.PEER_IP[1] + ":" + SkyNxt.PEER_IP[2];
-			$("#radio-choice-2").prop("checked", true);
+			$("#radio-choice-2").prop("checked", true);*/
 		}
 		else
 		{
-			$("#ipGrid").hide();
-			$("#nodeIPBtn").hide();		
+			//$("#ipGrid").hide();
+			//$("#nodeIPBtn").hide();		
 			SkyNxt.getPeer();
 		}
 	};

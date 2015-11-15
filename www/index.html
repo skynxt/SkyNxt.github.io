@@ -25,31 +25,47 @@ THE SOFTWARE.
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
 	<title>SkyNxt</title>
-	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="css/chartist.min.css">
 	<link rel="stylesheet" href="css/skynxt.css">
 	<link rel="stylesheet" href="js/framework/ionic/css/ionicons.min.css">
 	<link rel="stylesheet" href="js/framework/ionic/css/ionic.min.css">	
+	<link rel="stylesheet" href="js/framework/ionic/css/ionic.contrib.frostedGlass.css">
+	<link rel="stylesheet" href="js/framework/ionic/css/chat.css">
 	<script type="text/javascript" src="cordova.js"></script>
 	<script type="text/javascript" src="js/framework/jquery.min.js"></script>
-	<script type="text/javascript" src="js/framework/jquery.mobile-1.4.5.min.js"></script>	
 	<script type="text/javascript" src="js/framework/ionic/js/ionic.bundle.min.js"></script>
+    <script src="js/framework/ionic/js/ionic.contrib.frostedGlass.js"></script>	
 	<script type="text/javascript" src="js/framework/lokijs.min.js"></script>
 	<script type="text/javascript" src="js/framework/chartist.min.js"></script>
 	<script type="text/javascript" src="js/framework/qrcode.js"></script>
+	<script type="text/javascript" src="js/framework/pako.min.js"></script>
+	<script type="text/javascript" src="js/crypto/aes.js"></script>	
+	<script type="text/javascript" src="js/crypto/seedrandom.js"></script>
 	<script type="text/javascript" src="js/crypto/extensions.js"></script>
 	<script type="text/javascript" src="js/crypto/util.js"></script>
 	<script type="text/javascript" src="js/crypto/jsbn.js"></script>
 	<script type="text/javascript" src="js/crypto/jsbn2.js"></script>
 	<script type="text/javascript" src="js/crypto/nxtaddress.js"></script>
 	<script type="text/javascript" src="js/crypto/curve25519.js"></script>
+	<script type="text/javascript" src="js/crypto/curve25519_.js"></script>
 	<script type="text/javascript" src="js/crypto/jssha256.js"></script>
 	<script type="text/javascript" src="js/crypto/sha256.js"></script>
 	<script type="text/javascript" src="js/crypto/converters.js"></script>
 	<script type="text/javascript" src="js/ui/peerdiscovery.js"></script>
+	<script type="text/javascript" src="js/ui/file.js"></script>
+	<script type="text/javascript" src="js/ui/address.js"></script>
+	<script type="text/javascript" src="js/ui/transaction.js"></script>
+	<script type="text/javascript" src="js/ui/skynxt.js"></script>
+	<script type="text/javascript" src="js/ui/settings.js"></script>
+	<script type="text/javascript" src="js/ui/login.js"></script>
+	<script type="text/javascript" src="js/ui/account.js"></script>	
+	<script type="text/javascript" src="js/ui/sendnxt.js"></script>
+	<script type="text/javascript" src="js/ui/assetexchange.js"></script>
 	<script type="text/javascript" src="js/ui/vote.js"></script>
+	<script type="text/javascript" src="js/ui/messages.js"></script>
+	<script type="text/javascript" src="js/ui/accounttransactions.js"></script>
 	<script type="text/javascript" charset="utf-8">
 
 		// device APIs are available
@@ -81,392 +97,368 @@ THE SOFTWARE.
 			else 
 			{
 			   SkyNxt.discover(); // browser
-			}		
-		}
-		);
-		
-		//theme handling
-		$( document ).on( "pagecreate", function() {
-			$( "#theme-selector input" ).on( "change", function( event ) {
-				var themeClass = $( "#theme-selector input:checked" ).attr( "id" );
-				changeTheme(themeClass);
-				var userdbs = SkyNxt.usersettings.getCollection(SkyNxt.USER_SETTING_COLLECTION);
-				if(userdbs != null && userdbs != 'undefined')
-				{
-					var uiTheme = userdbs.findOne({'key' : SkyNxt.UI_THEME});
-					uiTheme.value = themeClass;
-				}
-			});
+			}
 		});
-		
-		function changeTheme(themeClass)
-		{
-			$( "#login, #account, #page, #sendNxt, #portfolio, #popupAssetID, #assetID, #panel, #assetDetailsFull, #asset_details_popupbox, #confirmAssetBuy, #confirm_buy_popupbox, #confirmAssetSell, #confirm_assetsell_popupbox, #popupOrderID, #transactions, #confirmSendNxt, #settings" ).removeClass( "ui-page-theme-a ui-page-theme-b" ).addClass( "ui-page-theme-" + themeClass );
-		}
-		
-		document.addEventListener("backbutton", function(e){
-			if($.mobile.activePage.is('#login')){
-				SkyNxt.createWrite(SkyNxt.FILE_ENTRY); //save app user data before exit
-				navigator.app.exitApp();
-			}
-			else {
-				navigator.app.backHistory();
-			}
-		}, false);
-		
-		//loading & hiding works only if its wrapped in setTimeout
-		function loaderIcon(showHide) {
-			setTimeout(function(){
-				$.mobile.loading(showHide);
-			}, 1); 
-		}
 
-		function loaderIconText(msgText) {
-			setTimeout(function(){
-				$.mobile.loading( 'show', {
-											text: msgText,
-											textVisible: "true"																						
-				});
-			}, 1);
-		}
-		
-	</script>	
+function loaderIcon(showHide) {
+/*SkyNxt.index.run(function($ionicLoading) {
+	$ionicLoading.hide();
+	});*/
+}
+
+function loaderIconText(msgText) {
+	/*SkyNxt.index.run(function($ionicLoading) {
+		$ionicLoading.show({ duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
+	});*/
+}
+</script>
 </head>
 <body>
- 
-<div data-url="login" data-role="page" id="login">
-<div data-role="header"><h1>SkyNxt</h1>
-<a href="#settings" id="setting_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-gear ui-btn-icon-right">Settings</a>
-</div>
 
-<div role="main" class="ui-content">
-	<form>
-		<input data-clear-btn="true" name="passPhrase" id="passPhrase" value="" type="text" placeholder="Enter your passphrase here"></input>
-		<p><a href="#account" class="ui-btn ui-shadow ui-corner-all">Enter</a></p>
-	</form>
-	<div style="text-align:center; width:100%; display:none;" id="nxtAddressQR" >
-	<h3 id="nxtAddress" style="text-align:center; width:100%;"></h3>
-	<a href="#receiveByQRcode" onclick="SkyNxt.createQRCode()" id="qrCodeIcon" data-rel="popup" data-transition="pop" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a>
-		<div data-role="popup" id="receiveByQRcode" class="ui-content" >	
-			<div id="qr"></div>
-		</div>
-	</div>
-</div>
-</div>
-
-<div data-url="settings" data-role="page" id="settings" >
-<div data-role="header">
-	<h1>Settings</h1>	
-	<a href="#login" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
-</div><!-- /header -->
-<div role="main" class="ui-content">
-	<h3>Peer\Node settings</h3>
-<div class="ui-field-contain" id="peerNodeSelector">
-	  <fieldset data-role="controlgroup">
-		<input type="radio" name="radio-choice-2" id="radio-choice-1" value="choice-1" checked="checked">
-		<label for="radio-choice-1">Auto detect peers</label>
-	    <div id="nodeIPInput">
-		<input type="radio" name="radio-choice-2" id="radio-choice-2" value="choice-2">
-		<label for="radio-choice-2">Input node IP\Port</label>
-		<div class="ui-grid-a ui-field-contain" id="ipGrid">
-			<div class=ui-block-a style="width: 70% !important;"><input type="text" id="nodeIP" placeholder="IP Address"></input></div>
-			<div class=ui-block-b style="width: 25% !important;"><input type="text" id="port" placeholder="Port"></input></div>
-		</div>
-		<button type="button" onclick="SkyNxt.testIPAddress()" class="ui-btn ui-corner-all ui-shadow" id="nodeIPBtn">Test connection</button>
-		</div>
-	  </fieldset>
-</div>	
-	<h3>UI Theme</h3>
-<div class="ui-field-contain" id="theme-selector">
-	<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
-		<label for="a">Light Theme</label>
-		<input type="radio" name="theme" id="a" checked="checked">
-		<label for="b">Dark Theme</label>
-		<input type="radio" name="theme" id="b">
-	</fieldset>
-</div>
-</div>
-
-<div data-role="popup" id="nodeIPInfoPopup" class="ui-content">
-    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
-	<p id="nodeInformation"></p>
-</div>
-</div>
-
-<div data-url="account" data-role="page" id="account" >
-<div data-role="header">
-	<h1>Account</h1>	
-	<a href="#login" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Login</a>
-</div><!-- /header -->
-<div role="main" class="ui-content">
- <h3  style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD" id="accountNxtAddress"></h3>
-<ul data-role="listview" data-inset="true">
-<li><a href="#sendNxt" id="sendNxtSelect">
-	<h2>Send Nxt</h2>
-	<p>Send amount to an Nxt Address</p>
-</a></li>
-<li><a href="#portfolio" id="portfolioSelect">
-	<h2>Nxt Asset Exchange Portfolio</h2>
-	<p>View porfolio. Trade on Nxt AE</p>
-</a></li>
-<li><a href="#transactions" id="transactionSelect">
-	<h2>Account Transactions</h2>
-	<p>View transactions of your account</p>
-</a></li>
-<li><a href="#" onclick="hidePage()" id="voteSelect">
-	<h2>Vote</h2>
-	<p>Select and Vote</p>
-</a></li>
-</ul>
-</div><!-- /content -->
-</div><!-- /page -->
-
-<div data-role="page" id="sendNxt" data-title="Send Nxt">
-<div data-role="header">
-	<h1>Send Nxt</h1>
-	<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
-	<a href="#" onclick="SkyNxt.sendNxt()" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-left">Refresh</a>
-</div><!-- /header -->
-<div class="ui-content" id="Trade" >	
-<div class="ui-grid-a ui-field-contain">
-<div class=ui-block-a style="text-align: right !important;"><span>Available Balance: &nbsp</span></div>
-<div class=ui-block-b><strong id="available_Balance"></strong></div>
-</div>	
-
-<div class="ui-grid-a ui-field-contain">
-<div class=ui-block-a style="width: 85% !important;"><input name="recipient_address" id="recipient_address" type="text" placeholder="Recipient Nxt Address"></input></div>
-<div class=ui-block-b style="width: 15% !important;"> &nbsp &nbsp <a href="#" onclick="SkyNxt.scanBarCode()" id="barcodeScanner" class="ui-btn ui-shadow ui-icon-grid ui-btn-inline ui-btn-icon-notext"></a></div>
-<div class=ui-block-a style="width: 85% !important;"><input name="send_amount" id="send_amount" placeholder="Amount to Send"></input></div>
-<div class=ui-block-b style="width: 15% !important;"></div>
-</div>	
-<a href="#confirmSendNxt" onclick="SkyNxt.sendNxtBtnClick()" data-rel="popup" data-position-to="window" class="ui-btn ui-shadow ui-btn-inline ui-corner-all" data-transition="pop" id="send_nxt_button">Send Nxt</a>
-</div><!-- End content-->
-<div data-role="popup" id="confirmSendNxt" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<div data-role="header" id="confirm_sendnxt_popupbox">
-	<h1>Confirm Send Nxt</h1>
-	</div>
-	<div role="main" class="ui-content">	
-	<p id="recipient_confirm">Recipient: </p>
-	<p id="amount_confirm">Amount: </p>
-	<p id="send_fee_confirm">Fee: </p>	
-	</div>
-	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
-	<a href="#" onclick="SkyNxt.confirmSendNxt()" class="ui-btn ui-corner-all ui-shadow" data-rel="back" data-transition="flow" id="send_nxt_submit">Submit</a>
-	</div>
-</form>
-</div>
-</div><!-- end send nxt page -->
-
-<div data-role="page" id="portfolio" data-title="Your Account Portfolio">
-<div data-role="header">
-<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
-<a href="#popupAssetID" data-rel="popup" data-position-to="window" data-transition="pop" id="add_asset_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-bars ui-btn-icon-right">Add Asset</a>
-</div>
-<div class="ui-content" role="main" id="searchAssetList">
-<form>
-    <input id="portfolioFilterListview" data-type="search" placeholder="Search in your Account Portfolio..."></input>
-</form>
-<div data-role="collapsibleset" data-filter="true" data-inset="true" id="portfolioList" data-input="#portfolioFilterListview">
-
-</div>
-</div>
-<div data-role="popup" id="popupAssetID" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<h3>Enter Asset ID</h3>				
-	<label class="ui-hidden-accessible">Asset ID</label>
-	<input id="assetID" value="" placeholder="Asset ID"></input>
-	<a href="#" onclick="SkyNxt.addAsset()" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Add to portfolio</a>
-</div>
-</form>
-</div>
-</div>
-
-<div data-url="nxtAE" data-role="page" id="panel" data-title="Nxt Asset Exchange">
-<div data-role="header">
-	<h1 id="assetHeading">Trade</h1>	
-	<a href="#portfolio" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Portfolio</a>
-	<a href="#" data-rel="popup" data-position-to="window" data-transition="pop" id="detailed_asset_btn" class="ui-btn ui-shadow ui-corner-all ui-icon-bars ui-btn-icon-right">Asset Details</a>
-
-<div data-role="popup" id="assetDetailsFull" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<div data-role="header" id="asset_details_popupbox">
-	<h1>Asset Details</h1>
-	</div>
-	<div role="main" class="ui-content">
-	<p id="assetID_full"></p>
-	<p id="name_full"></p>
-	<p id="description_full"></p>
-	<p id="account_full"></p>
-	<p id="accountRS_full"></p>
-	<p id="quantityQNT_full"></p>
-	<p id="decimals_full"></p>	
-	</div>
-	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">OK</a>
-</div>
-</form>
-</div>	
-</div><!-- /header -->
-
-<div class="ui-content" id="Trade" >
-<div data-role="tabs" id="nxtAETab">
-<div data-role="navbar">
-<ul>
-<li><a href="#buy">Buy</a></li>
-<li><a href="#sell">Sell</a></li>
-<li><a href="#orders">Orders</a></li>
-<li><a href="#history" onclick="SkyNxt.historyClick()">History</a></li>
-</ul>
-</div>
-<div id="buy" class="ui-body-d ui-content">
-<div class="ui-grid-a ui-field-contain">
- <div class=ui-block-a style="width: 25% !important;"><p>Price</p></div>
- <div class=ui-block-b style="width: 75% !important;"><input name="price" id="buy_asset_price" value="0.0" type="number"></input></div>
- <div class=ui-block-a style="width: 25% !important;"><p>Quantity</p></div>
- <div class=ui-block-b style="width: 75% !important;"><input name="qty" id="buy_asset_quantity" value="0.0" type="number"></input></div>
-</div>
-<label id="calcValueBuy" class="ui-hidden-accessible"></label>
-<a href="#confirmAssetBuy" onclick="SkyNxt.confirm('buy')" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-inline ui-corner-all" data-transition="pop" id="buy_asset">Buy Asset</a>
-<div data-role="popup" id="confirmAssetBuy" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<div data-role="header" id="confirm_buy_popupbox">
-	<h1>Buy</h1>
-	</div>
-	<div role="main" class="ui-content">
-	<p id="assetID_confirm_buy"></p>
-	<p id="price_confirm_buy">Price: </p>
-	<p id="qty_confirm_buy">Quantity: </p>
-	<p id="total_confirm_buy">Total: </p>
-	<p id="fee_confirm_buy">Fee: </p>
-	</div>
-	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
-	<a href="#" onclick="SkyNxt.submitOrder('buy')" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back" data-transition="flow">Submit</a>
-</div>
-</form>
-</div>
-
-<table data-role="table" id="askOrdersTable" data-mode="columntoggle" class="ui-body-d ui-shadow table-stripe ui-responsive">
-	<thead>
-	<tr>
-	<th data-priority="1">Price</th>
-	<th data-priority="1">Quantity</th>
-	</tr>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
-</div>
-
-<div id="sell" class="ui-body-d ui-content">
-<div class="ui-grid-a ui-field-contain">
- <div class=ui-block-a style="width: 25% !important;"><p>Price</p></div>
- <div class=ui-block-b style="width: 75% !important;"><input name="price" id="sell_asset_price" value="0.0" type="number"></input></div>
- <div class=ui-block-a style="width: 25% !important;"><p>Quantity</p></div>
- <div class=ui-block-b style="width: 75% !important;"><input name="qty" id="sell_asset_quantity" value="0.0" type="number"></input></div>
-</div>
-<label id="calcValueSell" class="ui-hidden-accessible"></label>
-<a href="#confirmAssetSell" onclick="SkyNxt.confirm('sell')" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-inline ui-corner-all" data-transition="pop" id="sell_asset">Sell Asset</a>
-<div data-role="popup" id="confirmAssetSell" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<div data-role="header" id="confirm_assetsell_popupbox">
-	<h1>Sell</h1>
-	</div>
-	<div role="main" class="ui-content">
-	<p id="assetID_confirm_sell"></p>
-	<p id="price_confirm_sell">Price: </p>
-	<p id="qty_confirm_sell">Quantity: </p>
-	<p id="total_confirm_sell">Total: </p>
-	<p id="fee_confirm_sell">Fee: </p>
-	</div>
-	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Cancel</a>
-	<a href="#" onclick="SkyNxt.submitOrder('sell')" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back" data-transition="flow">Submit</a>
-	</div>
-</form>
-</div>
-<table data-role="table" id="bidOrdersTable" data-mode="columntoggle" class="ui-body-d ui-shadow table-stripe ui-responsive">
-	<thead>
-	<tr>
-	<th data-priority="1">Price</th>
-	<th data-priority="1">Quantity</th>
-	</tr>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
-</div>
-
-<div id="orders" class="ui-body-d ui-content">
-<form>
-<div class="ui-grid-a ui-field-contain" id="openOrdersSwitch">
-    <div class=ui-block-a style="width: 65% !important;"><label for="openOrdersLabel"><p></p>Showing open orders for :</label></div>
-    <div class=ui-block-b style="width: 35% !important;"><select name="openOrdersLabel" id="openOrdersLabel" data-role="flipswitch" data-mini="true">
-		<option value="Sell">Sell</option>
-        <option value="Buy" selected="selected">Buy</option>        
-    </select></div>
-</div>
-</form>
-<p></p>
-<div class="ui-grid-b" id="openbidOrdersTable">
-</div>
-<div class="ui-grid-b" id="openaskOrdersTable">
-</div>
-<div data-role="popup" id="popupOrderID" class="ui-corner-all">
-<form>
-<div style="padding:10px 20px;">
-	<h3 id="cancellation_heading">Order Cancellation</h3>				
-	<p id="orderID_confirm_cancel">Order ID: </p>
-	<p id="price_confirm_cancel">Price: </p>
-	<p id="qty_confirm_cancel">Quantity: </p>
-	<p id="fee_cancel">Fee: </p>
-	<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="back">Dismiss</a>
-	<button type="button" onclick="SkyNxt.cancelOrder()" class="ui-btn ui-corner-all ui-shadow">Cancel Order</button>
-</div>
-</form>
-</div>
-</div>
-
-<div id="history" class="ui-body-d ui-content">
-	<div class="ct-chart ct-square" id="chart"></div>
-</div>
-</div><!----tabs----->
-</div> <!----content----->
-</div><!----end page----->
-
-<div data-role="page" id="transactions" data-title="Your Account Transactions">
-<div data-role="header">
-<a href="#account" class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l ui-btn-icon-left">Account</a>
-<a href="#" onclick="SkyNxt.transactions()" class="ui-btn ui-shadow ui-corner-all ui-icon-refresh ui-btn-icon-left">Refresh</a>
-</div>
-<div>
-<div class="ui-content" id="transactionList">
-<form>
-    <input id="transactionFilterview" data-type="search" placeholder="Search transactions..."></input>
-</form>
-<div data-role="collapsibleset" data-filter="true" data-inset="true" id="transactionCollapsibleList" data-input="#transactionFilterview">
-</div>
-</div>
-</div>
-</div>
-
-<div ng-app="vote" id="voteDiv" ng-controller="voteCtrl" ng-hide="voteshow">
+<div ng-app="skynxt">
 <ion-nav-bar class="bar-positive">
-<ion-nav-back-button>
-</ion-nav-back-button>
+  <ion-nav-back-button class="button-icon ion-arrow-left-c">
+  </ion-nav-back-button>
 </ion-nav-bar>
-<ion-nav-view>
-</ion-nav-view>
+		 
+<ion-nav-view></ion-nav-view>
+
+<script id="templates/settings.html" type="text/ng-template">
+ <ion-view view-title="Settings"> 
+  <ion-content>	
+<p>Peer\Node settings</p>
+<ion-radio ng-model="select.name" value="auto" ng-click="peerSettings()">
+	Auto detect peers
+</ion-radio>
+<ion-radio ng-model="select.name" value="node" ng-click="peerSettings()">
+	Input node IP\Port
+</ion-radio>
+<div ng-show="peerInput">
+	<div class="row">
+		<div class="col">
+			<input type="text" ng-model="ip.text" placeholder="IP Address"></input>
+		</div>
+		<div class="col">
+			<input type="text" ng-model="port.text" placeholder="Port"></input>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<button class='button icon icon-center ion-checkmark-circled' ng-click="testNode()">&nbsp;Test</button>
+		</div>
+	</div>
+</div>
+<p></p>
+
+  </ion-content>
+ </ion-view>
+</script>
+ 
+<script id="templates/qr.html" type="text/ng-template">
+  <ion-modal-view>
+	<ion-header-bar class="bar bar-header bar-positive">
+	  <h1 class="title">Receive Nxt</h1>
+	  <a class='button icon ion-ios-close-outline' ng-click="qr.hide();"></a>
+	</ion-header-bar>
+	<ion-content class="padding">
+	<div class="col text-center">
+		<div ng-bind-html="qrcode"></div>
+		<p></p>
+		<span>{{globalAddress}}</span>
+		<p></p>
+		<a class='button icon ion-social-whatsapp-outline' href="whatsapp://send?text={{globalAddress}}"></a>
+		<a class='button icon ion-social-twitter-outline' href="https://twitter.com/share?text={{globalAddress}}" target="_blank"></a>
+		<a class='button icon ion-social-facebook-outline' href="http://www.facebook.com/sharer.php?text={{globalAddress}}" target="_blank"></a>
+	</div>
+	</ion-content>
+  </ion-modal-view>
+</script>
+
+<script id="templates/log-in.html" type="text/ng-template">
+ <ion-view view-title="SkyNxt">
+<ion-content>
+	<label class="item item-input item-floating-label">
+		<i class="icon ion-person placeholder-icon"></i>	
+		<input type="text" ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()"></input>
+	</label>
+	<p></p>
+	<div class="col text-center">
+		<span>{{globalAddress}}</span> &nbsp;&nbsp; <button class='button icon ion-ios-barcode-outline' ng-click="showQR()"></button>
+	</div>	
+	<p></p>
+   <div class="padding">
+	<button class="button button-block icon ion-log-in icon-center button-positive" ng-click="logIn()">
+	  Enter
+	</button>
+   <p></p>
+      <a class='button icon ion-hammer' href="#settings"></a>	
+   </div> 
+  </ion-content>
+ </ion-view>
+</script>
+
+<script id="templates/account.html" type="text/ng-template">
+ <ion-view view-title="Account">
+  <ion-content>
+  <p></p>
+	<h4 style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD">{{globalAddress}}</h4>
+      <div class="list">
+        <a ng-repeat="item in items" href="#/{{item.id}}" class="item">
+		<div class="item-input-inset">		  
+		  <i style="font-size:30px" class="icon {{item.icon}}"></i>
+		  <span style="font-size:25px">&nbsp;&nbsp;{{ item.option }}</span>
+		</div>
+          <h2>{{ item.detail }}</h2>
+        </a>
+	 </div>
+  </ion-content>
+ </ion-view>
+</script>
+
+<script id="templates/sendNxt.html" type="text/ng-template">
+ <ion-view view-title="Send Nxt"> 
+<ion-nav-buttons side="right">
+      <button class="button button-light icon ion-ios-reload" ng-click="accountBalance()"></button>
+ </ion-nav-buttons> 
+  <ion-content>
+  <div class="list">
+    <div class="col text-center" style="background:#e6e5eb;padding:2rem;">
+	  <strong style="font-size:20px">{{balance}} </strong><ion-spinner icon="spiral" ng-show="balance_spinner"></ion-spinner> <strong style="font-size:15px">NXT</strong>
+	</div>	
+	</div>
+	<p></p>
+  <div class="item item-input-inset">
+    <label class="item-input-wrapper item-floating-label">
+	  <span class="input-label">Recipient NXT address</span>
+	  <input type="text" ng-model="recipient_address.text" style="width: 230px;" placeholder="NXT-____-____-____-_____" ng-change="checkRecipient()">
+    </label>
+	  <button class="button icon ion-qr-scanner" ng-click="SkyNxt.scanBarCode()"></button>
+  </div>  
+	<label class="item item-input item-floating-label">
+	  <span class="input-label">Amount in NXT</span>
+	  <input type="text" ng-model="amtNxt.text" ng-keydown="keydownevent($event)" placeholder="Amount in NXT">
+	</label>
+  <div class="padding">
+	<button class="button button-block icon ion-share icon-center button-positive" ng-click="sendNxtBtnClick()">
+	  Send Nxt
+	</button>
+  </div>
+  </div>
+  </ion-content>
+ </ion-view>
+</script>
+
+<script id="portfolio.html" type="text/ng-template">
+	<ion-view view-title="Asset Portfolio">
+<ion-nav-buttons side="right">
+      <button class="button button-light icon ion-ios-plus-outline" ng-click="addAssetID()"></button>
+</ion-nav-buttons> 
+ 		<ion-content class="padding">
+			<ion-list>
+				<div ng-repeat="group in groups">
+					<ion-item class="item-stable"
+						ng-click="toggleGroup(group)"
+						ng-class="{active: isGroupShown(group)}">
+						<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+						&nbsp;
+						{{group.name}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Asset ID: <a href='#' ng-click="assetTabs(group)">{{group.asset}} </a>
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Balance: {{group | formatBalance}}
+					</ion-item>
+				</div>
+			</ion-list>
+		</ion-content>	
+	</ion-view>
+</script>
+
+<script id="asset-menu.html" type="text/ng-template">
+  <ion-side-menus>
+
+	<ion-side-menu-content>
+	  <ion-nav-bar class="bar-positive">
+		<ion-nav-buttons side="left">
+		  <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+		  </button>
+		</ion-nav-buttons>
+	  </ion-nav-bar>
+
+	  <ion-nav-view name="menuContent"></ion-nav-view>
+	</ion-side-menu-content> 
+
+	<ion-side-menu side="left">
+	<header class="bar bar-header bar-assertive">
+		<div class="title">Trading options</div>
+	</header>
+
+	  <ion-content>
+		<ul class="list">
+		  <a href="#portfolio" style="font-size:20px" class="item icon ion-arrow-return-left" menu-close>&nbsp;&nbsp;Back to Portfolio</a>
+		  <a href="#/event/buy" style="font-size:20px" class="item icon ion-arrow-graph-up-right" menu-close>&nbsp;&nbsp;Buy</a>
+		  <a href="#/event/sell" style="font-size:20px" class="item icon ion-arrow-graph-down-right" menu-close>&nbsp;&nbsp;Sell</a>
+		  <a href="#/event/orders" style="font-size:20px" class="item icon ion-stats-bars" menu-close>&nbsp;&nbsp;Open Orders</a>
+		  <a href="#/event/chart" style="font-size:20px" class="item icon ion-pie-graph" menu-close>&nbsp;&nbsp;Chart</a>
+		  <a href="#/event/history" style="font-size:20px" class="item icon ion-clock" menu-close>&nbsp;&nbsp;Trade History</a>
+		  <a href="#/event/assetinfo" style="font-size:20px" class="item icon ion-ios-information" menu-close>&nbsp;&nbsp;Asset Info</a>
+		</ul>
+	  </ion-content>
+	</ion-side-menu>
+  </ion-side-menus>
+</script>
+
+<script id="buy.html" type="text/ng-template">
+<ion-view view-title="Buy - {{currentAsset.name}}">
+<!-- <ion-nav-buttons side="left">
+      <a class="button icon ion-arrow-return-left" href="#portfolio"></a>
+ </ion-nav-buttons> 
+ -->	<ion-content>
+	
+		<label class="item item-input-wrapper item-floating-label">
+		  <span class="input-label">Buy Price</span>
+		  <input type="text" ng-model="buyprice.text" ng-keydown="keydowneventPrice($event)" placeholder="Buy Price">
+		</label>		  
+		<label class="item item-input-wrapper item-floating-label">
+		  <span class="input-label">Buy Quantity</span>
+		  <input type="text" ng-model="buyquantity.text" ng-keydown="keydowneventQuantity($event)" placeholder="Buy Quantity">
+		</label>	
+	<div class="row">
+	  <div class="col text-center"><button class="button icon ion-arrow-graph-up-right icon-center button-positive" ng-click="buy()">
+		  Buy
+		</button>
+	  </div>	  
+	  <div class="col text-center"><span>Total: <strong>{{buyprice.text * buyquantity.text | number : 8}}</strong><span>&nbsp;NXT</span></div>
+	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="buyOrders()"></button></div>
+	</div>
+		
+		<p></p>
+			<div class="list text-center">
+			<div class="row">
+			  <div class="col"><strong>Price</strong></div>
+			  <div class="col"><strong>Quantity</strong></div>
+			</div>
+			<div class="row gridstyle text-center" ng-click="setaskOrder(askorder)" ng-repeat="askorder in askorders">
+			  <div class="col">{{ askorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
+			  <div class="col">{{ askorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
+			</div>
+			</div>
+	
+	</ion-content>
+</ion-view>
+</script> 
+	
+<script id="sell.html" type="text/ng-template">
+<ion-view view-title="Sell - {{currentAsset.name}}">
+	<ion-content>
+	<div class="list">
+		<label class="item item-input-wrapper item-floating-label">
+		  <span class="input-label">Sell Price</span>
+		  <input type="text" ng-model="sellprice.text" ng-keydown="keydowneventPrice($event)" placeholder="Sell Price">
+		</label>		  
+		<label class="item item-input-wrapper item-floating-label">
+		  <span class="input-label">Sell Quantity</span>
+		  <input type="text" ng-model="sellquantity.text" ng-keydown="keydowneventQuantity($event)" placeholder="Sell Quantity">
+		</label>	
+	<div class="row">
+		<div class="col text-center"><button class="button icon ion-arrow-graph-down-right icon-center button-positive" ng-click="sell()">
+		  Sell
+		</button></div>	    
+	  <div class="col text-center"><span>Total: <strong>{{sellprice.text * sellquantity.text | number : 8}}</strong><span>&nbsp;NXT</span></div>
+	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="sellOrders()"></button></div>
+	</div>		
+		
+		<p></p>
+			<div class="list">
+			<div class="row text-center">
+			  <div class="col"><strong>Price</strong></div>
+			  <div class="col"><strong>Quantity</strong></div>
+			</div>
+			<div class="row gridstyle text-center" ng-click="setbidOrder(bidorder)" ng-repeat="bidorder in bidorders.slice().reverse()">
+			  <div class="col">{{ bidorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
+			  <div class="col">{{ bidorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
+			</div>
+			</div>
+	</div>
+	</ion-content>
+</ion-view>
+</script>
+
+<script id="orders.html" type="text/ng-template">
+	<ion-view view-title="Open Orders - {{currentAsset.name}}">
+		<ion-content class="padding">
+		<ion-toggle ng-click="toggleOpenOrders()" on-swipe="toggleOpenOrders()" ng-model="openOrderStatus">
+			<div ng-bind="openOrderTxt"></div>
+		</ion-toggle>
+
+			<div class="row text-center">			  
+			  <div class="col"><strong>Price</strong></div>
+			  <div class="col"><strong>Quantity</strong></div>
+			  <div class="col"></div>
+			</div>
+		  <div ng-show="orderstatus()">
+			<div class="row gridstyle text-center" ng-repeat="openaskorder in openaskorders ">			  
+			  <div class="col">{{ openaskorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
+			  <div class="col">{{ openaskorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>			  
+			  <div class="col"><button class="button button-small icon ion-close-round" ng-click="cancelOrder(openaskorder, 'sell')"></button></div>
+			</div>
+			</div>
+		  <div ng-show="!orderstatus()">
+			<div class="row gridstyle text-center" ng-repeat="openbidorder in openbidorders ">			  
+			  <div class="col">{{ openbidorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
+			  <div class="col">{{ openbidorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>
+			  <div class="col"><button class="button button-small icon ion-close-round" ng-click="cancelOrder(openbidorder, 'buy')"></button></div>
+			</div>
+		</div>
+		</ion-content>
+	</ion-view>
+</script>
+
+<script id="chart.html" type="text/ng-template">
+	<ion-view view-title="Chart - {{currentAsset.name}}">
+		<ion-content class="padding">
+			<div class="ct-chart ct-square" id="assetchart"></div>
+		</ion-content>
+	</ion-view>
+</script>
+
+<script id="history.html" type="text/ng-template">
+	<ion-view view-title="Trade History - {{currentAsset.name}}">
+		<ion-content class="padding">
+			<div class="row text-center">
+			  <div class="col"><strong>Date</strong></div>
+			  <div class="col"><strong>Price</strong></div>
+			  <div class="col"><strong>Quantity</strong></div>
+			</div>
+		  
+			<div class="row gridstyle text-center" ng-repeat="trade in tradeHistory.slice().reverse()">			  
+				<div class="col">{{ trade.timestamp | formatTimestamp}}</div>
+			  <div class="col">{{ trade.priceNQT | formatPrice: currentAsset.decimals}}</div>
+			  <div class="col">{{ trade.quantityQNT | formatQuantity: currentAsset.decimals}}</div>			
+			</div>
+		</ion-content>
+	</ion-view>
+</script>
+
+<script id="assetinfo.html" type="text/ng-template">
+	<ion-view view-title="Asset Info - {{currentAsset.name}}">
+		<ion-content class="padding">
+			<p>Asset ID :    {{currentAsset.asset}}</p>
+			<p>Name :        {{currentAsset.name}}</p>
+			<p>Description : {{currentAsset.description}}</p>
+			<p>Account :     {{currentAsset.account}}</p>
+			<p>AccountRS :   {{currentAsset.accountRS}}</p>
+			<p>Quantity :    {{currentAsset.quantityQNT  | formatQuantity: currentAsset.decimals}}</p>
+			<p>Decimal :     {{currentAsset.decimals}}</p>
+		</ion-content>
+	</ion-view>
+</script>
 
 <script id="pollList.html" type="text/ng-template">
 	<ion-view view-title="Poll list">
 		<ion-content class="padding">
-			<a class="button icon icon-left ion-chevron-left" ng-click="showAccount()">Account</a>
-			<p></p>
-			<ion-toggle ng-click="togglePoll()" ng-model="pollStatus">
+			<ion-toggle ng-click="togglePoll()" on-swipe="togglePoll()" ng-model="pollStatus">
 				<div ng-bind="pollStatusTxt"></div>
 			</ion-toggle>
 			<ion-list>
@@ -501,11 +493,11 @@ THE SOFTWARE.
 
 <script id="tabs.html" type="text/ng-template">
 	<ion-tabs class="tabs-icon-top tabs-positive">
-	<ion-tab title="Poll Information" icon="ion-ios-information" href="#/tab/pollInfo">
-		<ion-nav-view name="pollInfo-tab"></ion-nav-view>
-	</ion-tab>
 	<ion-tab title="{{tabName}}" icon="{{tabIcon}}" href="#/tab/castVote">
 		<ion-nav-view name="castVote-tab"></ion-nav-view>
+	</ion-tab>
+	<ion-tab title="Poll Information" icon="ion-ios-information" href="#/tab/pollInfo">
+		<ion-nav-view name="pollInfo-tab"></ion-nav-view>
 	</ion-tab>
 	</ion-tabs>
 </script>
@@ -513,8 +505,6 @@ THE SOFTWARE.
 <script id="pollInfo.html" type="text/ng-template">
 	<ion-view view-title="Poll Information">
 		<ion-content class="padding">
-			<a class="button icon icon-left ion-chevron-left" href="#pollList">Back</a>
-			<p></p>
 			<p class="item-divider">Poll Name: {{POLL.name}}</p>
 			<p class="item-divider">Description: {{POLL.description}}</p>
 			<p class="item-divider">Minimum number of options: {{POLL.minNumberOfOptions}}</p>
@@ -528,9 +518,14 @@ THE SOFTWARE.
 
 <script id="castVote.html" type="text/ng-template">
 	<ion-view view-title="{{tabTitle}}">
+		<ion-nav-buttons side="right">
+		  <button class="button button-light icon ion-ios-reload" ng-click="refresh()"></button>
+	 </ion-nav-buttons> 
+	<ion-nav-buttons side="left">
+		  <a class="button icon ion-arrow-return-left" href="#pollList"></a>
+	 </ion-nav-buttons> 
+
 		<ion-content class="padding">
-			<a class="button icon icon-left ion-chevron-left" href="#pollList">Back</a>
-			<p></p>
 			<p class="item-divider">Description: {{POLL.description}}</p>
 			<div ng-show="showResults()">
 				<div class="ct-chart" id="pollResultPieChart"></div>
@@ -569,12 +564,97 @@ THE SOFTWARE.
 		</ion-content>
 	</ion-view>
 </script>
-</div>
 
-<script type="text/javascript" src="js/ui/file.js"></script>
-<script type="text/javascript" src="js/ui/address.js"></script>
-<script type="text/javascript" src="js/ui/assetexchange.js"></script>
-<script type="text/javascript" src="js/ui/transaction.js"></script>
-<script type="text/javascript" src="js/ui/sendnxt.js"></script>
+<script id="templates/messages.html" type="text/ng-template">
+<ion-view view-title="Messages">
+<ion-nav-buttons side="right">
+  <button class="button button-icon button-clear ion-compose" menu-toggle="right" ng-click="showCompose()">
+  </button>
+</ion-nav-buttons>
+
+<ion-content>
+	<div class="list">
+		<a ng-repeat="sender in senders" ng-click="showMessages(sender.senderRS)" class="item">
+			<div class="item-input-inset">
+				<span>{{sender.senderRS}}</span>
+			</div>
+		</a>
+	</div>
+</ion-content>
+</ion-view>
+</script>
+
+<script id="templates/compose.html" type="text/ng-template">
+<ion-view view-title="Compose Message">
+<ion-content>
+  <div class="item item-input-inset">
+    <label class="item-input-wrapper item-floating-label">
+	  <span class="input-label">Message recipient NXT address</span>
+	  <input type="text" ng-model="recipient_address.text" style="width: 230px;" placeholder="NXT-____-____-____-_____">
+    </label>
+	  <button class="button icon ion-qr-scanner" ng-click="SkyNxt.scanBarCode()"></button>
+  </div>  
+  <p></p>
+
+  <ion-toggle ng-click="toggleMessageType()" on-swipe="toggleMessageType()" ng-model="plainText">
+	<div ng-bind="messageSendType"></div>
+  </ion-toggle>
+
+  <div class="padding">
+	<textarea class="text" maxlength="1000" style="width:100%;height:100px;" ng-model="message.text" placeholder="Type message"></textarea>
+  </div>
+  <p></p>
+    <div class="padding">
+	<button class="button button-block icon ion-ios-paperplane-outline icon-center button-positive" ng-click="sendMessage()">
+	  Send Message
+	</button>
+</ion-content>
+</ion-view>
+</script>
+
+<script id="templates/chat.html" type="text/ng-template">
+    <ion-pane>
+	<ion-content class="padding" start-y="120">
+		<ol class="messages">
+		  <li ng-repeat="message in messages" ng-bind-html="message.content"></li>
+		</ol>
+	</ion-content>
+      <ion-footer-bar frosted-bar class="bar-frosted">
+      </ion-footer-bar>
+    </ion-pane>
+</script>
+
+<script id="transactions.html" type="text/ng-template">
+	<ion-view view-title="Account transactions">
+		<ion-content class="padding">
+			<ion-list>
+				<div ng-repeat="group in groups.slice().reverse()">
+					<ion-item class="item-stable"
+						ng-click="toggleGroup(group)"
+						ng-class="{active: isGroupShown(group)}">
+						<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+						&nbsp;
+						<i class="icon {{group.icon}}"></i>
+						&nbsp;
+						{{group.type}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Date: {{group.time | formatTimestamp}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isDataShown(group)">
+						From: {{group.from}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isDataShown(group)">
+						To: &nbsp;&nbsp;&nbsp;&nbsp;{{group.to}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
+						Fee: {{group.fee | formatAmount}} NXT, &nbsp;&nbsp; Confirmations: {{group.confirmations}}
+					</ion-item>
+				</div>
+			</ion-list>
+		</ion-content>	
+	</ion-view>
+</script>
+</div>
 </body>
 </html>

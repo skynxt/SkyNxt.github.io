@@ -118,7 +118,7 @@ var converters = function() {
 				}
 				words[offset] = word;
 			}
-			var wordArray = new Object();
+			var wordArray = {};
 			wordArray.sigBytes = len;
 			wordArray.words = words;
 
@@ -239,6 +239,66 @@ var converters = function() {
 		},
 		int32ToBytes: function(x, opt_bigEndian) {
 			return converters.intToBytes_(x, 4, 4294967295, opt_bigEndian);
-		}
+		},
+		// assumes wordArray is Big-Endian
+		wordArrayToByteArray: function(wordArray) {
+			return converters.wordArrayToByteArrayImpl(wordArray, true);
+		},
+		wordArrayToByteArrayImpl: function(wordArray, isFirstByteHasSign) {
+			var len = wordArray.words.length;
+			if (len == 0) {
+				return new Array(0);
+			}
+			var byteArray = new Array(wordArray.sigBytes);
+			var offset = 0,
+				word, i;
+			for (i = 0; i < len - 1; i++) {
+				word = wordArray.words[i];
+				byteArray[offset++] = isFirstByteHasSign ? word >> 24 : (word >> 24) & 0xff;
+				byteArray[offset++] = (word >> 16) & 0xff;
+				byteArray[offset++] = (word >> 8) & 0xff;
+				byteArray[offset++] = word & 0xff;
+			}
+			word = wordArray.words[len - 1];
+			byteArray[offset++] = isFirstByteHasSign ? word >> 24 : (word >> 24) & 0xff;
+			if (wordArray.sigBytes % 4 == 0) {
+				byteArray[offset++] = (word >> 16) & 0xff;
+				byteArray[offset++] = (word >> 8) & 0xff;
+				byteArray[offset++] = word & 0xff;
+			}
+			if (wordArray.sigBytes % 4 > 1) {
+				byteArray[offset++] = (word >> 16) & 0xff;
+			}
+			if (wordArray.sigBytes % 4 > 2) {
+				byteArray[offset++] = (word >> 8) & 0xff;
+			}
+			return byteArray;
+		},		
+        byteArrayToWordArrayEx: function (u8arr) {
+            // Shortcut
+            var len = u8arr.length;
+
+            // Convert
+            var words = [];
+            for (var i = 0; i < len; i++) {
+                words[i >>> 2] |= (u8arr[i] & 0xff) << (24 - (i % 4) * 8);
+            }
+
+            return CryptoJS.lib.WordArray.create(words, len);
+        },
+        wordArrayToByteArrayEx: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            // Convert
+            var u8 = new Uint8Array(sigBytes);
+            for (var i = 0; i < sigBytes; i++) {
+                var byte = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                u8[i]=byte;
+            }
+
+            return u8;
+        }		
 	}
 }();

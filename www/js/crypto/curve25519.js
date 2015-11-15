@@ -854,6 +854,7 @@ var curve25519 = function () {
     return {
         sign: sign,
         verify: verify,
-        keygen: keygen
+        keygen: keygen,
+        core: core
     };
 }();
