@@ -51,9 +51,9 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		if(type == SkyNxt.TRANSACTION_TYPE)
 				return { transtype : SkyNxt.PAYMENT, icon : "ion-card" };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT)
-				return { transtype : SkyNxt.SELL_ORDER, icon : 'ion-arrow-graph-up-left' };
+				return { transtype : SkyNxt.SELL_ORDER, icon : 'ion-arrow-graph-up-right' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
-				return { transtype : SkyNxt.BUY_ORDER, icon : 'ion-arrow-graph-up-right' };
+				return { transtype : SkyNxt.BUY_ORDER, icon : 'ion-arrow-graph-up-left' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
 				return { transtype : SkyNxt.SELL_CANCEL, icon : 'ion-android-cancel' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)

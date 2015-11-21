@@ -243,7 +243,7 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 	{
 		if(!isNaN($scope.buyprice.text) && !isNaN($scope.buyquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + "<br>Buy Quantity: " + $scope.buyquantity.text + " Nxt<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + " NXT<br>Buy Quantity: " + $scope.buyquantity.text + "<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Buy order',
@@ -327,7 +327,7 @@ if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 	{
 		if(!isNaN($scope.sellprice.text) && !isNaN($scope.sellquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + "<br>Sell Quantity: " + $scope.sellquantity.text + " Nxt<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + " NXT<br>Sell Quantity: " + $scope.sellquantity.text + "<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Sell order',
