@@ -468,6 +468,7 @@ function verifyAndSignTransactionBytes(byteArray, type) {
 
 function broadcastTransaction(tx, callbackFunc)
 {
+	if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	var url = SkyNxt.ADDRESS +'/nxt?requestType=broadcastTransaction&transactionBytes=' + tx;
 	$.ajax({
 			url: url,
@@ -493,6 +494,7 @@ function broadcastTransaction(tx, callbackFunc)
 		}).fail(function(xhr, textStatus, error) {
 			
 		});
+	}
 }
 
 	return SkyNxt;

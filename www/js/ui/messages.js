@@ -46,7 +46,7 @@ SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
 	$scope.$on('$ionicView.enter', function(){
 		$rootScope.messageRecipient = "";
 	});
-
+	if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.senders = [];
 	$ionicLoading.show({
 		duration: 30000,
@@ -73,16 +73,12 @@ SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
 	})
 	.error(function(response) {
 	});	
-	
-	$scope.showCompose = function()
-	{
-		$state.go('compose');
-	}
-	
+
 	$scope.showMessages = function(senderRS){
 		showsenderRS = senderRS;
 		$state.go('chat');
 	}
+}
 })
 .controller('composeCtrl', function($scope, $state, $rootScope, $ionicPopup, $ionicLoading, $http) {
 $scope.recipient_address = {text : ""};
@@ -175,6 +171,7 @@ $scope.sendMessage = function()
 	}
 	else
 	{
+		if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		$ionicLoading.show({ duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 
 		$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountPublicKey&account=' + $scope.recipient_address.text)
@@ -192,6 +189,7 @@ $scope.sendMessage = function()
 				});
 			}
 		})
+	}
 	}
 }
 })
@@ -296,6 +294,7 @@ $scope.decryptData = function(data, nonce, publicKey) {
 }
 	
 $scope.$on('$ionicView.enter', function(){
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.messages = [];
 	var messageOptions = [];
 	var otherpublicKey = ""
@@ -381,5 +380,6 @@ $scope.$on('$ionicView.enter', function(){
 	})
 	.error(function(response) {
 	});
+}
 })
 })

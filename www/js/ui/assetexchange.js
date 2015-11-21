@@ -92,6 +92,7 @@ $stateProvider
 })
 })
 .controller('portfolioListCtrl', function($scope, $ionicLoading, $http, $state, $ionicPopup, $ionicModal) {
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){	
 	var assetsdb = 'undefined';	
 	$scope.groups = [];
 	$scope.toggleGroup = function(group) {
@@ -133,25 +134,27 @@ $stateProvider
 	
 	$scope.addToPortfolio = function()
 	{
-	$ionicLoading.show({
-		duration: 30000,
-		noBackdrop: true,
-		template: '<ion-spinner icon="spiral"></ion-spinner>'
-	});
-	
-	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAsset&asset=' + $scope.assetID.text)
-    .success(function(response) {
-		$ionicLoading.hide();
-		if(assetsdb == undefined)//????????????????????????????????????????????????????
-		{
-			assetsdb = SkyNxt.database.addCollection('assets');
+		if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
+			$ionicLoading.show({
+				duration: 30000,
+				noBackdrop: true,
+				template: '<ion-spinner icon="spiral"></ion-spinner>'
+			});
+			
+			$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAsset&asset=' + $scope.assetID.text)
+			.success(function(response) {
+				$ionicLoading.hide();
+				if(assetsdb == undefined)//????????????????????????????????????????????????????
+				{
+					assetsdb = SkyNxt.database.addCollection('assets');
+				}
+				response.quantityQNT = 0;
+				assetsdb.insert(response);
+				$scope.groups.unshift(response);
+			})
+			.error(function(response) {
+			});
 		}
-		response.quantityQNT = 0;
-		assetsdb.insert(response);
-		$scope.groups.push(response);
-	})
-	.error(function(response) {
-	});
 	}
 
 	$scope.addAssetID = function(){		
@@ -182,6 +185,7 @@ $stateProvider
 		SkyNxt.currentAsset = asset;
 		$state.go('assetmenu.buy')
 	}
+}
 })
 .controller('buyTabCtrl', function($rootScope, $scope, $ionicLoading, $ionicPopup, $http, $filter) {
 $scope.$on('$ionicView.enter', function(){ 

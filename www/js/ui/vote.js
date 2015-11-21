@@ -57,6 +57,8 @@ $stateProvider
 });
 })
 .controller('pollListCtrl', function($scope, $ionicLoading, $http, $state, $timeout, $rootScope) {
+$scope.showPollList = function(){
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.pollStatus = true;
 	$scope.pollStatusTxt = "Active polls";
 	$scope.toggleGroup = function(group) {
@@ -69,7 +71,7 @@ $stateProvider
 	
 	$scope.isGroupShown = function(group) {
 		return $scope.shownGroup === group;
-	};  	
+	};
 	
 	$scope.showVoting = function(group){
 		globalPoll = group;
@@ -128,7 +130,9 @@ $stateProvider
 	})
 	.error(function(response) {
 	});	
-
+}
+}
+$scope.showPollList();
 })
 .controller('tabCtrl', function($rootScope, $scope, $ionicLoading, $http) {
 $scope.POLL = "";

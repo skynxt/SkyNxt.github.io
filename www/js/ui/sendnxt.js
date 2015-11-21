@@ -43,6 +43,7 @@ $scope.keydownevent = function(e){
 }
 	
 $scope.accountBalance = function(){
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.balance = "";
 	$scope.balance_spinner = true;
 	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getBalance&account=' + SkyNxt.globalAddress)	
@@ -53,6 +54,7 @@ $scope.accountBalance = function(){
 	.error(function(response) {
 		$scope.balance_spinner = false;
 	});
+}
 }
 
 $scope.checkRecipient = function() {

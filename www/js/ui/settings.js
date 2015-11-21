@@ -38,7 +38,7 @@ $scope.peerInput = false;
 $scope.peerSettings = function(){
 	if($scope.select.name == "node")
 	{
-		$scope.peerInput = true;	
+		$scope.peerInput = true;
 	}
 	else
 	{

@@ -93,7 +93,7 @@ THE SOFTWARE.
 				{
 					SkyNxt.discover(); // browser
 				}
-			} 
+			}
 			else 
 			{
 			   SkyNxt.discover(); // browser
@@ -117,14 +117,17 @@ function loaderIconText(msgText) {
 
 <div ng-app="skynxt">
 <ion-nav-bar class="bar-positive">
-  <ion-nav-back-button class="button-icon ion-arrow-left-c">
+<!--   <ion-nav-back-button class="button-icon ion-arrow-left-c">
   </ion-nav-back-button>
-</ion-nav-bar>
+ --></ion-nav-bar>
 		 
 <ion-nav-view></ion-nav-view>
 
 <script id="templates/settings.html" type="text/ng-template">
  <ion-view view-title="Settings"> 
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#login"></a>
+ </ion-nav-buttons> 
   <ion-content>	
 <p>Peer\Node settings</p>
 <ion-radio ng-model="select.name" value="auto" ng-click="peerSettings()">
@@ -199,6 +202,9 @@ function loaderIconText(msgText) {
 
 <script id="templates/account.html" type="text/ng-template">
  <ion-view view-title="Account">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#login"></a>
+ </ion-nav-buttons> 
   <ion-content>
   <p></p>
 	<h4 style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD">{{globalAddress}}</h4>
@@ -217,6 +223,9 @@ function loaderIconText(msgText) {
 
 <script id="templates/sendNxt.html" type="text/ng-template">
  <ion-view view-title="Send Nxt"> 
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+ </ion-nav-buttons> 
 <ion-nav-buttons side="right">
       <button class="button button-light icon ion-ios-reload" ng-click="accountBalance()"></button>
  </ion-nav-buttons> 
@@ -250,6 +259,9 @@ function loaderIconText(msgText) {
 
 <script id="portfolio.html" type="text/ng-template">
 	<ion-view view-title="Asset Portfolio">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+ </ion-nav-buttons> 
 <ion-nav-buttons side="right">
       <button class="button button-light icon ion-ios-plus-outline" ng-click="addAssetID()"></button>
 </ion-nav-buttons> 
@@ -457,6 +469,9 @@ function loaderIconText(msgText) {
 
 <script id="pollList.html" type="text/ng-template">
 	<ion-view view-title="Poll list">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+ </ion-nav-buttons> 
 		<ion-content class="padding">
 			<ion-toggle ng-click="togglePoll()" on-swipe="togglePoll()" ng-model="pollStatus">
 				<div ng-bind="pollStatusTxt"></div>
@@ -567,9 +582,11 @@ function loaderIconText(msgText) {
 
 <script id="templates/messages.html" type="text/ng-template">
 <ion-view view-title="Messages">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+ </ion-nav-buttons> 
 <ion-nav-buttons side="right">
-  <button class="button button-icon button-clear ion-compose" menu-toggle="right" ng-click="showCompose()">
-  </button>
+      <a class="button button-icon ion-compose" href="#compose"></a>
 </ion-nav-buttons>
 
 <ion-content>
@@ -586,6 +603,9 @@ function loaderIconText(msgText) {
 
 <script id="templates/compose.html" type="text/ng-template">
 <ion-view view-title="Compose Message">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#messages"></a>
+ </ion-nav-buttons> 
 <ion-content>
   <div class="item item-input-inset">
     <label class="item-input-wrapper item-floating-label">
@@ -613,6 +633,13 @@ function loaderIconText(msgText) {
 </script>
 
 <script id="templates/chat.html" type="text/ng-template">
+<ion-view view-title="Read">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#messages"></a>
+</ion-nav-buttons>
+<ion-nav-buttons side="right">
+      <a class="button button-icon ion-compose" href="#compose"></a>
+</ion-nav-buttons> 
     <ion-pane>
 	<ion-content class="padding" start-y="120">
 		<ol class="messages">
@@ -622,10 +649,14 @@ function loaderIconText(msgText) {
       <ion-footer-bar frosted-bar class="bar-frosted">
       </ion-footer-bar>
     </ion-pane>
+</ion-view>
 </script>
 
 <script id="transactions.html" type="text/ng-template">
 	<ion-view view-title="Account transactions">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+ </ion-nav-buttons> 
 		<ion-content class="padding">
 			<ion-list>
 				<div ng-repeat="group in groups.slice().reverse()">

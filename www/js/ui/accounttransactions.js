@@ -31,6 +31,8 @@ $stateProvider
 })
 })
 .controller('transactionsListCtrl', function($scope, $ionicLoading, $http, $state, $timeout) {
+$scope.showTransactions = function(){
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){	
 	var transactionsdb = 'undefined';	
 	$scope.groups = [];
 	$scope.toggleGroup = function(group) {
@@ -120,4 +122,7 @@ $stateProvider
 	})
 	.error(function(response) {
 	});
+}
+}
+$scope.showTransactions();
 });
