@@ -101,10 +101,13 @@ function readAsText(file) {
 
 SkyNxt.getPeer = function()
 {
-	var max = SkyNxt.PEER_IP.length;
-	var min = 0;
-    var rand = Math.floor(Math.random() * (max - min + 1)) + min;
-	SkyNxt.ADDRESS = SkyNxt.PEER_IP[rand] + ":" + SkyNxt.PORT;
+	if(SkyNxt.PEER_INPUT != true)
+	{
+		var max = SkyNxt.PEER_IP.length;
+		var min = 0;
+		var rand = Math.floor(Math.random() * (max - min + 1)) + min;
+		SkyNxt.ADDRESS = SkyNxt.PEER_IP[rand] + ":" + SkyNxt.PORT;
+	}
 }
 
 function firstWrite(fileEntry)

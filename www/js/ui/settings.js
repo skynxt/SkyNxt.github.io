@@ -19,7 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+SkyNxt.PEER_INPUT = false;
 SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('settings', {
@@ -38,12 +38,12 @@ $scope.peerInput = false;
 $scope.peerSettings = function(){
 	if($scope.select.name == "node")
 	{
-		$scope.peerInput = true;
+		SkyNxt.PEER_INPUT = $scope.peerInput = true;
 	}
 	else
 	{
-		SkyNxt.discover()
-		$scope.peerInput = false;
+		SkyNxt.PEER_INPUT = $scope.peerInput = false;
+		SkyNxt.discover();
 	}
 }
 
