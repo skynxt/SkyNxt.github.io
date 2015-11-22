@@ -163,11 +163,13 @@ $scope.sendMessage = function()
 		});
 		return;		
 	}
-	//calculate FEE based on message length?????????????tbd
+	
 	if($scope.plainText)
 	{
 		var messageBytes = converters.stringToByteArray($scope.message.text)
-		SkyNxt.message_BuildHex(messageBytes, converters.stringToByteArray(""), SkyNxt.MESSAGE, $scope.recipient_address.text, $rootScope.sendMessageCallBack);
+		var messageFee = Math.ceil(messageBytes.length/32);
+		messageFee = SkyNxt.FEE_NQT * messageFee
+		SkyNxt.message_BuildHex(messageBytes, converters.stringToByteArray(""), SkyNxt.MESSAGE, $scope.recipient_address.text, messageFee, $rootScope.sendMessageCallBack);
 	}
 	else
 	{
@@ -179,7 +181,9 @@ $scope.sendMessage = function()
 			$ionicLoading.hide();
 			if(response.publicKey != 'undefined'){
 				var data = $rootScope.encryptNote($scope.message.text, converters.hexStringToByteArray(response.publicKey));
-				SkyNxt.message_BuildHex(data.str, data.nonce, SkyNxt.ENCRYPTED_MESSAGE, $scope.recipient_address.text);
+				var messageFee = Math.ceil(data.str.length/32);
+				messageFee = SkyNxt.FEE_NQT * messageFee
+				SkyNxt.message_BuildHex(data.str, data.nonce, SkyNxt.ENCRYPTED_MESSAGE, messageFee, $scope.recipient_address.text);
 			}
 			else
 			{

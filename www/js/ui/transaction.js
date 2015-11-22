@@ -322,7 +322,7 @@ SkyNxt.build = function(type, subType){
 	return hexTrans;
 }
 
-SkyNxt.message_BuildHex = function(data, nonce, messageType, recipient, callbackFunc){
+SkyNxt.message_BuildHex = function(data, nonce, messageType, recipient, messageFee, callbackFunc){
 	var buffer = []; var hexTrans;
 	var LONG_BYTE_LENGTH = 8; 
 
@@ -348,7 +348,7 @@ SkyNxt.message_BuildHex = function(data, nonce, messageType, recipient, callback
 	var amount = (new BigInteger(String(amountNQT))).toByteArray().reverse();
 	amount = amount.concat(pad(LONG_BYTE_LENGTH - amount.length, 0));
 	hexTrans = hexTrans.concat(converters.byteArrayToHexString(amount.slice(0, LONG_BYTE_LENGTH)));
-	var fee = (new BigInteger(SkyNxt.FEE_NQT)).toByteArray().reverse();
+	var fee = (new BigInteger(messageFee)).toByteArray().reverse();
 	fee = fee.concat(pad(LONG_BYTE_LENGTH - fee.length, 0));
 	hexTrans = hexTrans.concat(converters.byteArrayToHexString(fee.slice(0, LONG_BYTE_LENGTH)));
 	hexTrans = hexTrans.concat(converters.byteArrayToHexString(pad(32,0)));

@@ -38,6 +38,7 @@ var apipeersdb;
 var api_disabled_peersdb;
 var peerbalancedb;
 SkyNxt.trustedpeersdb;
+SkyNxt.ADDRESS = "";
 SkyNxt.PEER_IP = [];
 
 SkyNxt.discover = function()
