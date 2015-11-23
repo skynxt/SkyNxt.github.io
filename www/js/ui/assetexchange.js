@@ -253,7 +253,7 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 				if(res) {
 					var assetId = new BigInteger(String(SkyNxt.currentAsset.asset));
 					var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.buyquantity.text), SkyNxt.currentAsset.decimals));
-					var priceNQT = new BigInteger(NRS.convertToNQT(String($scope.buyprice.text), SkyNxt.currentAsset.decimals));			
+					var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.buyprice.text)), SkyNxt.currentAsset.decimals));
 					var order = new BigInteger("0");
 					SkyNxt.placeAssetOrder_BuildHex("buy", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString());
 				}
@@ -337,7 +337,7 @@ if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 				if(res) {
 					var assetId = new BigInteger(String(SkyNxt.currentAsset.asset));
 					var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.sellquantity.text), SkyNxt.currentAsset.decimals));
-					var priceNQT = new BigInteger(NRS.convertToNQT(String($scope.sellprice.text), SkyNxt.currentAsset.decimals));			
+					var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.sellprice.text)), SkyNxt.currentAsset.decimals));
 					var order = new BigInteger("0");
 					SkyNxt.placeAssetOrder_BuildHex("sell", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString());
 				}
