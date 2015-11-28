@@ -95,6 +95,23 @@ $stateProvider
 if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){	
 	var assetsdb = 'undefined';	
 	$scope.groups = [];
+	$scope.portfolioSearch = { text : '' };
+	
+	$scope.filterPortfolio = function(e){
+	if(e.keyCode == 13 || $scope.portfolioSearch.text == ""){
+	assetsdb.removeDynamicView("porfolioFilter");
+		var dv = assetsdb.addDynamicView('porfolioFilter');
+		dv.applyWhere(function conversation(obj){
+		for (var m in obj){
+			if(String(obj[m]).toLowerCase().indexOf($scope.portfolioSearch.text.toLowerCase()) != -1)
+				return true;
+		}
+		return false;
+		});
+		$scope.groups = dv.applySimpleSort("name").data();
+	}
+	}
+	
 	$scope.toggleGroup = function(group) {
 		if ($scope.isGroupShown(group)) {
 		  $scope.shownGroup = null;
@@ -105,7 +122,7 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	
 	$scope.isGroupShown = function(group) {
 		return $scope.shownGroup === group;
-	};  	
+	};
 
 	$ionicLoading.show({
 		duration: 30000,
@@ -122,8 +139,8 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		for (var i=0; i < response.accountAssets.length; i++) {
 			var asset = response.accountAssets[i];
 			assetsdb.insert({asset : asset.asset, name : asset.name, quantityQNT: asset.quantityQNT, decimals : parseInt(asset.decimals, 10)});
-			$scope.groups.push(asset);
 		}
+		$scope.groups = assetsdb.chain().simplesort("name").data();
 	})
 	.error(function(response) {
 	});
@@ -238,12 +255,18 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 		$scope.buyprice.text = $filter('formatPrice')(askorder.priceNQT, SkyNxt.currentAsset.decimals);
 		$scope.buyquantity.text = $filter('formatQuantity')(askorder.quantityQNT, SkyNxt.currentAsset.decimals);
 	}
-	
+	$scope.formatTotal = "";
+	$scope.formatTotalFunc = function(){
+		var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.buyquantity.text), SkyNxt.currentAsset.decimals));
+		var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.buyprice.text)), SkyNxt.currentAsset.decimals));		
+		var total = quantityQNT.multiply(priceNQT);
+		$scope.formatTotal = NRS.convertToNXT(total.toString());
+	}
 	$scope.buy = function()
 	{
-		if(!isNaN($scope.buyprice.text) && !isNaN($scope.buyquantity.text))
+		if($scope.buyprice.text != "" && $scope.buyquantity.text != "" && !isNaN($scope.buyprice.text) && !isNaN($scope.buyquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + " NXT<br>Buy Quantity: " + $scope.buyquantity.text + "<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + " NXT<br>Buy Quantity: " + $scope.buyquantity.text  + "<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Buy order',
@@ -317,17 +340,26 @@ if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 	.error(function(response) {
 	});
 	}
+	
 	$scope.setbidOrder = function(bidorder)
 	{
 		$scope.sellprice.text = $filter('formatPrice')( bidorder.priceNQT, SkyNxt.currentAsset.decimals);
 		$scope.sellquantity.text = $filter('formatQuantity')(bidorder.quantityQNT, SkyNxt.currentAsset.decimals);
-	}	
+	}
+
+	$scope.formatTotal = "";
+	$scope.formatTotalFunc = function(){
+		var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.sellquantity.text), SkyNxt.currentAsset.decimals));
+		var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.sellprice.text)), SkyNxt.currentAsset.decimals));		
+		var total = quantityQNT.multiply(priceNQT);
+		$scope.formatTotal = NRS.convertToNXT(total.toString());
+	}
 
 	$scope.sell = function()
 	{
-		if(!isNaN($scope.sellprice.text) && !isNaN($scope.sellquantity.text))
+		if($scope.sellprice.text != "" && $scope.sellquantity.text != "" && !isNaN($scope.sellprice.text) && !isNaN($scope.sellquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + " NXT<br>Sell Quantity: " + $scope.sellquantity.text + "<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + " NXT<br>Sell Quantity: " + $scope.sellquantity.text + "<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Sell order',

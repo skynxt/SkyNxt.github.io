@@ -32,7 +32,7 @@ $stateProvider
 })
 .controller('transactionsListCtrl', function($scope, $ionicLoading, $http, $state, $timeout) {
 $scope.showTransactions = function(){
-if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){	
+if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	var transactionsdb = 'undefined';	
 	$scope.groups = [];
 	$scope.toggleGroup = function(group) {
@@ -47,6 +47,23 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		return $scope.shownGroup === group;
 	};  	
 
+	$scope.transactionSearch = {text : ''};
+	
+	$scope.filterTransactions = function(e){
+		if(e.keyCode == 13 || $scope.transactionSearch.text == ""){
+		transactionsdb.removeDynamicView("transactionsFilter");
+		var dv = transactionsdb.addDynamicView('transactionsFilter');
+		dv.applyWhere(function conversation(obj){
+		for (var m in obj){
+			if(String(obj[m]).toLowerCase().indexOf($scope.transactionSearch.text.toLowerCase()) != -1)
+				return true;
+		}
+		return false;
+		});
+		$scope.groups = dv.applySimpleSort("time").data();
+		}
+	}
+	
 	$scope.getType = function(type, subtype) {
 		if(type == SkyNxt.TRANSACTION_TYPE)
 				return { transtype : SkyNxt.PAYMENT, icon : "ion-card" };

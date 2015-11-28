@@ -90,46 +90,61 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.togglePoll = function()
 	{
 		$scope.pollStatus = !$scope.pollStatus;
-		
-		if($scope.pollStatus)
-		{
-			$scope.pollStatusTxt = "Active polls";
-			var activePolls = voteList.find({ 'finished': false });
-			$scope.populatePollList(activePolls);
-		}
-		else
-		{
-			$scope.pollStatusTxt = "Finished polls";
-			var finishedPolls = voteList.find({ 'finished': true });
-			$scope.populatePollList(finishedPolls);
-		}
+		$scope.groups = voteList.find({ 'finished': !$scope.pollStatus });
+		$scope.pollStatusTxt = ($scope.pollStatus)? "Active polls" : "Finished polls";
 	}
 
-	$ionicLoading.show({
-		duration: 30000,
-		noBackdrop: true,
-		template: '<ion-spinner icon="android"></ion-spinner>'
-	});
+	$scope.pollSearch = { text : '' };
 	
+	$scope.filterPolls = function(e){
+	if(e.keyCode == 13 || $scope.pollSearch.text == ""){
+		voteList.removeDynamicView("pollFilter");
+		var dv = voteList.addDynamicView('pollFilter');
+		dv.applyWhere(function conversation(obj){
+		for (var m in obj){
+			if(String(obj[m]).toLowerCase().indexOf($scope.pollSearch.text.toLowerCase()) != -1)
+				return true;
+		}
+		return false;
+		});
+		$scope.groups = dv.applyFind({ 'finished': !$scope.pollStatus }).data();
+	}
+	}
+
+	$ionicLoading.show({ duration: 30000, noBackdrop: true, template: '<ion-spinner icon="android"></ion-spinner>' });
     
-	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPolls&includeFinished=true")	
+	$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getPolls&includeFinished=true")
     .success(function(response) {
 		SkyNxt.database.removeCollection('votelist');
 		voteList = SkyNxt.database.addCollection('votelist');
-		$ionicLoading.hide();
 		$scope.groups = [];
-		for (var i=0; i < response.polls.length; i++) {
-			var pollObj = response.polls[i];
-			voteList.insert({minRangeValue:pollObj.minRangeValue,votingModel:pollObj.votingModel,description:pollObj.description,finished:pollObj.finished,poll:pollObj.poll,minNumberOfOptions:pollObj.minNumberOfOptions,minBalance:pollObj.minBalance,accountRS:pollObj.accountRS,name:pollObj.name,options:pollObj.options,finishHeight:pollObj.finishHeight,maxNumberOfOptions:pollObj.maxNumberOfOptions,minBalanceModel:pollObj.minBalanceModel,account:pollObj.account,maxRangeValue:pollObj.maxRangeValue,timestamp:pollObj.timestamp});
+		var time = "";
+		var currentHeight = "";
+		$http.get(SkyNxt.ADDRESS + "/nxt?requestType=getBlockchainStatus")
+		.success(function(responseChainStatus) {
+			$ionicLoading.hide();
+			time = responseChainStatus.time;
+			currentHeight = responseChainStatus.numberOfBlocks;
+			for (var i=0; i < response.polls.length; i++) {
+				var pollObj = response.polls[i];
+				
+				if(currentHeight < pollObj.finishHeight)
+					pollObj["finishTime"] = NRS.formatTimestamp(parseInt(time + ((pollObj.finishHeight - currentHeight) * 60))) + " (approx)";
+				else
+					pollObj["finishTime"] = NRS.formatTimestamp(parseInt(time - ((currentHeight - pollObj.finishHeight) * 60))) + " (approx)";
+				voteList.insert({finishTime:pollObj.finishTime,minRangeValue:pollObj.minRangeValue,votingModel:pollObj.votingModel,description:pollObj.description,finished:pollObj.finished,poll:pollObj.poll,minNumberOfOptions:pollObj.minNumberOfOptions,minBalance:pollObj.minBalance,accountRS:pollObj.accountRS,name:pollObj.name,options:pollObj.options,finishHeight:pollObj.finishHeight,maxNumberOfOptions:pollObj.maxNumberOfOptions,minBalanceModel:pollObj.minBalanceModel,account:pollObj.account,maxRangeValue:pollObj.maxRangeValue,timestamp:pollObj.timestamp});
 
-			if(pollObj.finished == false)
-			{
-				$scope.groups.push(pollObj);
+				if(pollObj.finished == false)
+				{
+					$scope.groups.push(pollObj);
+				}
 			}
-		}
+		})
+		.error(function(responseChainStatus) {
+		});
 	})
 	.error(function(response) {
-	});	
+	});
 }
 }
 $scope.showPollList();

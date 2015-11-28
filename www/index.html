@@ -180,10 +180,12 @@ function loaderIconText(msgText) {
 <script id="templates/log-in.html" type="text/ng-template">
  <ion-view view-title="SkyNxt">
 <ion-content>
-	<label class="item item-input item-floating-label">
-		<i class="icon ion-person placeholder-icon"></i>	
-		<input type="text" ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()"></input>
-	</label>
+	<div class="list list-inset">
+	  <label class="item item-input">
+		<i class="ion-person placeholder-icon"></i>
+		<input type="text" ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()">
+	  </label>
+	</div>
 	<p></p>
 	<div class="col text-center">
 		<span>{{globalAddress}}</span> &nbsp;&nbsp; <button class='button icon ion-ios-barcode-outline' ng-click="showQR()"></button>
@@ -263,9 +265,15 @@ function loaderIconText(msgText) {
       <a class="button button-icon ion-arrow-left-c" href="#account"></a>
  </ion-nav-buttons> 
 <ion-nav-buttons side="right">
-      <button class="button button-light icon ion-ios-plus-outline" ng-click="addAssetID()"></button>
+      <button class="button button-light icon ion-plus-round" ng-click="addAssetID()"></button>
 </ion-nav-buttons> 
  		<ion-content class="padding">
+		<div class="list list-inset">
+		  <label class="item item-input">
+			<i class="icon ion-search placeholder-icon"></i>
+			<input type="text" ng-model="portfolioSearch.text" placeholder="Search portfolio.." ng-keyup="filterPortfolio($event)"></input>
+		  </label>
+		</div>
 			<ion-list>
 				<div ng-repeat="group in groups">
 					<ion-item class="item-stable"
@@ -330,18 +338,18 @@ function loaderIconText(msgText) {
 	
 		<label class="item item-input-wrapper item-floating-label">
 		  <span class="input-label">Buy Price</span>
-		  <input type="text" ng-model="buyprice.text" ng-keydown="keydowneventPrice($event)" placeholder="Buy Price">
+		  <input type="text" ng-model="buyprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Buy Price">
 		</label>		  
 		<label class="item item-input-wrapper item-floating-label">
 		  <span class="input-label">Buy Quantity</span>
-		  <input type="text" ng-model="buyquantity.text" ng-keydown="keydowneventQuantity($event)" placeholder="Buy Quantity">
+		  <input type="text" ng-model="buyquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Buy Quantity">
 		</label>	
 	<div class="row">
 	  <div class="col text-center"><button class="button icon ion-arrow-graph-up-right icon-center button-positive" ng-click="buy()">
 		  Buy
 		</button>
 	  </div>	  
-	  <div class="col text-center"><span>Total: <strong>{{buyprice.text * buyquantity.text | number : 8}}</strong><span>&nbsp;NXT</span></div>
+	  <div class="col text-center"><span>Total: <strong>{{  formatTotal }}</strong><span>&nbsp;NXT</span></div>
 	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="buyOrders()"></button></div>
 	</div>
 		
@@ -351,7 +359,7 @@ function loaderIconText(msgText) {
 			  <div class="col"><strong>Price</strong></div>
 			  <div class="col"><strong>Quantity</strong></div>
 			</div>
-			<div class="row gridstyle text-center" ng-click="setaskOrder(askorder)" ng-repeat="askorder in askorders">
+			<div class="row gridstyle text-center" ng-click="setaskOrder(askorder);formatTotalFunc();" ng-repeat="askorder in askorders">
 			  <div class="col">{{ askorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
 			  <div class="col">{{ askorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
 			</div>
@@ -367,17 +375,17 @@ function loaderIconText(msgText) {
 	<div class="list">
 		<label class="item item-input-wrapper item-floating-label">
 		  <span class="input-label">Sell Price</span>
-		  <input type="text" ng-model="sellprice.text" ng-keydown="keydowneventPrice($event)" placeholder="Sell Price">
+		  <input type="text" ng-model="sellprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Sell Price">
 		</label>		  
 		<label class="item item-input-wrapper item-floating-label">
 		  <span class="input-label">Sell Quantity</span>
-		  <input type="text" ng-model="sellquantity.text" ng-keydown="keydowneventQuantity($event)" placeholder="Sell Quantity">
+		  <input type="text" ng-model="sellquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Sell Quantity">
 		</label>	
 	<div class="row">
 		<div class="col text-center"><button class="button icon ion-arrow-graph-down-right icon-center button-positive" ng-click="sell()">
 		  Sell
 		</button></div>	    
-	  <div class="col text-center"><span>Total: <strong>{{sellprice.text * sellquantity.text | number : 8}}</strong><span>&nbsp;NXT</span></div>
+	  <div class="col text-center"><span>Total: <strong>{{ formatTotal }}</strong><span>&nbsp;NXT</span></div>
 	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="sellOrders()"></button></div>
 	</div>		
 		
@@ -387,7 +395,7 @@ function loaderIconText(msgText) {
 			  <div class="col"><strong>Price</strong></div>
 			  <div class="col"><strong>Quantity</strong></div>
 			</div>
-			<div class="row gridstyle text-center" ng-click="setbidOrder(bidorder)" ng-repeat="bidorder in bidorders.slice().reverse()">
+			<div class="row gridstyle text-center" ng-click="setbidOrder(bidorder);formatTotalFunc();" ng-repeat="bidorder in bidorders.slice().reverse()">
 			  <div class="col">{{ bidorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
 			  <div class="col">{{ bidorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
 			</div>
@@ -476,6 +484,12 @@ function loaderIconText(msgText) {
 			<ion-toggle ng-click="togglePoll()" on-swipe="togglePoll()" ng-model="pollStatus">
 				<div ng-bind="pollStatusTxt"></div>
 			</ion-toggle>
+			<div class="list list-inset">
+			  <label class="item item-input">
+				<i class="icon ion-search placeholder-icon"></i>
+				<input type="text" ng-model="pollSearch.text" placeholder="Search poll details.." ng-keyup="filterPolls($event)"></input>
+			  </label>
+			</div>
 			<ion-list>
 				<div ng-repeat="group in groups">
 					<ion-item class="item-stable"
@@ -493,6 +507,7 @@ function loaderIconText(msgText) {
 					</ion-item>
 					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
 						Finish block height: {{group.finishHeight}}
+						Finish time: {{group.finishTime}}
 					</ion-item>
 					<ion-item ng-show="isGroupShown(group)">
 						<p></p>
@@ -592,8 +607,8 @@ function loaderIconText(msgText) {
 <ion-content>
 	<div class="list">
 		<a ng-repeat="sender in senders" ng-click="showMessages(sender.senderRS)" class="item">
-			<div class="item-input-inset">
-				<span>{{sender.senderRS}}</span>
+			<div class="item-input-inset item-icon-right">
+				<span>{{sender.senderRS}}</span><i class="icon ion-chevron-right"></i>
 			</div>
 		</a>
 	</div>
@@ -658,6 +673,12 @@ function loaderIconText(msgText) {
       <a class="button button-icon ion-arrow-left-c" href="#account"></a>
  </ion-nav-buttons> 
 		<ion-content class="padding">
+		<div class="list list-inset">
+		  <label class="item item-input">
+			<i class="icon ion-search placeholder-icon"></i>
+			<input type="text" ng-model="transactionSearch.text" placeholder="Search transactions.." ng-keyup="filterTransactions($event)"></input>
+		  </label>
+		</div>
 			<ion-list>
 				<div ng-repeat="group in groups.slice().reverse()">
 					<ion-item class="item-stable"
