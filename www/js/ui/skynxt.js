@@ -3,7 +3,7 @@ SkyNxt.index = angular.module('skynxt', ['ionic', 'ionic.contrib.frostedGlass'])
     '$compileProvider',
     function( $compileProvider )
     {   
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|ftp|whatsapp):/);
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|ftp|whatsapp|sms):/);
         // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
     }
 ])
