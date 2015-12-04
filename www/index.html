@@ -84,15 +84,7 @@ THE SOFTWARE.
 		$( document ).ready(function(){
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) 
 			{
-				var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1 && document.URL.indexOf( 'file://' ) === -1;
-				if(app)
-				{
-					document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
-				}
-				else
-				{
-					SkyNxt.discover(); // browser
-				}
+				document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
 			}
 			else 
 			{

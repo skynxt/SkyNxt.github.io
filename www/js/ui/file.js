@@ -83,16 +83,17 @@ function readAsText(file) {
 		SkyNxt.PEER_IP = trustedPeerdata.value.split(',');
 		
 		if(String(SkyNxt.PEER_IP[0]) == String(SkyNxt.HTTPS_NODE) || String(SkyNxt.PEER_IP[0]) == String(SkyNxt.HTTP_NODE))
-		{	
-			/*$("#nodeIP").val(String(SkyNxt.PEER_IP[1]));			
-			$("#port").val(String(SkyNxt.PEER_IP[2]));
+		{
+			SkyNxt.PEER_INPUT = true;
+			SkyNxt.PEER_IP_UI = String(SkyNxt.PEER_IP[1]);
+			SkyNxt.PEER_PORT_UI = String(SkyNxt.PEER_IP[2]);
 			SkyNxt.ADDRESS = SkyNxt.PEER_IP[0] + SkyNxt.PEER_IP[1] + ":" + SkyNxt.PEER_IP[2];
-			$("#radio-choice-2").prop("checked", true);*/
 		}
 		else
 		{
-			//$("#ipGrid").hide();
-			//$("#nodeIPBtn").hide();		
+			SkyNxt.PEER_INPUT = false;
+			SkyNxt.PEER_IP_UI = "";
+			SkyNxt.PEER_PORT_UI = "";
 			SkyNxt.getPeer();
 		}
 	};
@@ -115,7 +116,6 @@ function firstWrite(fileEntry)
 	SkyNxt.discover();
 	var userdbs = SkyNxt.usersettings.addCollection(SkyNxt.USER_SETTING_COLLECTION);
 	userdbs.insert({key:SkyNxt.PEER_SETTINGS, value:SkyNxt.PEER_SETTING_AUTO});
-	userdbs.insert({key:SkyNxt.UI_THEME, value:SkyNxt.UI_THEME_LIGHT});
 	var trustedPeerList = "";
 	for(j = 1; j <= SkyNxt.trustedpeersdb.data.length; j++)
 	{

@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 SkyNxt.PEER_INPUT = false;
+SkyNxt.PEER_IP_UI = "";
+SkyNxt.PEER_PORT_UI = "";
 SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('settings', {
@@ -29,6 +31,24 @@ SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
     })
 })
 .controller('SettingsCtrl', function($scope, $state, $ionicLoading, $http, $ionicPopup) { 
+$scope.$on('$ionicView.enter', function(){
+	if(SkyNxt.PEER_INPUT == true)
+	{	
+		if(SkyNxt.PEER_IP_UI != "")
+		{
+			$scope.select.name = "node";
+			$scope.peerInput = true;
+			$scope.ip.text = SkyNxt.PEER_IP_UI;
+			$scope.port.text = SkyNxt.PEER_PORT_UI;
+		}
+	}
+	else
+	{
+		$scope.peerInput = false;
+		$scope.select.name = "auto";
+	}
+});
+
 $scope.httpsConnDone = false;
 $scope.select = {name : 'auto'};
 $scope.ip = {text : ''};
@@ -90,6 +110,8 @@ $scope.testIPAddress = function()
 			{
 				var trustedPeerdata = userdbs.findOne({'key' : SkyNxt.TRUSTED_PEERS});
 				trustedPeerdata.value = nodeDetails;
+				SkyNxt.PEER_IP_UI = $scope.ip.text;
+				SkyNxt.PEER_PORT_UI = $scope.port.text;
 			}
 			$ionicPopup.alert({
 				title: 'Test result',
