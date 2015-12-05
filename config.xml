@@ -9,17 +9,18 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-
-<plugin name="org.apache.cordova.file" source="npm" />
-<plugin name="org.apache.cordova.splashscreen" source="npm" />
-<plugin name="phonegap-plugin-barcodescanner" source="npm" />
-
-<platform name="android">
 <preference name="SplashScreen" value="screen" />
 <preference name="SplashScreenDelay" value="10000" />
 <preference name="SplashMaintainAspectRatio" value="true" />
 <preference name="phonegap-version" value="4.0.2" />
 <preference name="orientation" value="landscape" />
+<preference name="AndroidPersistentFileLocation" value="Compatibility" />
+
+<plugin name="cordova-plugin-file" source="npm" />
+<plugin name="cordova-plugin-splashscreen" source="npm" />
+<plugin name="phonegap-plugin-barcodescanner" source="npm" />
+
+<platform name="android">
 <icon src="res/android/SkyNxt.png" qualifier="ldpi" />
 <icon src="res/android/SkyNxt.png" qualifier="mdpi" />
 <icon src="res/android/SkyNxt.png" qualifier="hdpi" />
