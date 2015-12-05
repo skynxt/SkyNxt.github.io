@@ -9,30 +9,27 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-	<preference name="SplashScreen" value="screen" />
-	<preference name="SplashScreenDelay" value="10000" />
-	<preference name="SplashMaintainAspectRatio" value="true" />
-	<gap:plugin name="org.apache.cordova.file" source="npm" />
-	<gap:plugin name="org.apache.cordova.splashscreen" source="npm" />
-	<gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
-	<gap:platform name="android" />
-		<icon src="res/android/SkyNxt.png" gap:platform="android" gap:qualifier="ldpi" />
-		<icon src="res/android/SkyNxt.png" gap:platform="android" gap:qualifier="mdpi" />
-		<icon src="res/android/SkyNxt.png" gap:platform="android" gap:qualifier="hdpi" />
-		<icon src="res/android/SkyNxt.png" gap:platform="android" gap:qualifier="xhdpi" />
+<plugin name="org.apache.cordova.file" source="npm" />
+<plugin name="org.apache.cordova.splashscreen" source="npm" />
+<plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
-	  <!-- you can use any density that exists in the Android project -->
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="ldpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="mdpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="hdpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="xhdpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="fr-xhdpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="port-xxhdpi" />
-		<gap:splash src="res/screen/android/SkyNxt.png" gap:platform="android" gap:qualifier="land-xxhdpi" />
-
-	<gap:platform name="winphone" />
-		<icon src="res/wp/SkyNxt.png" gap:platform="winphone" />
-		<icon src="res/screen/wp8/SkyNxt.png" gap:platform="winphone" gap:role="background" />
-
+<platform name="android">
+<preference name="SplashScreen" value="screen" />
+<preference name="SplashScreenDelay" value="10000" />
+<preference name="SplashMaintainAspectRatio" value="true" />
+<preference name="phonegap-version" value="4.0.2" />
+<preference name="orientation" value="landscape" />
+<icon src="res/android/SkyNxt.png" qualifier="ldpi" />
+<icon src="res/android/SkyNxt.png" qualifier="mdpi" />
+<icon src="res/android/SkyNxt.png" qualifier="hdpi" />
+<icon src="res/android/SkyNxt.png" qualifier="xhdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="ldpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="mdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="hdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="xhdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="fr-xhdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="port-xxhdpi" />
+<splash src="res/screen/android/SkyNxt.png" qualifier="land-xxhdpi" />
+</platform>
 </widget>
