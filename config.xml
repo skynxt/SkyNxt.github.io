@@ -9,7 +9,6 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-<preference name="phonegap-version" value="4.0.1" />
 <preference name="SplashScreen" value="screen" />
 <preference name="SplashScreenDelay" value="10000" />
 <preference name="SplashMaintainAspectRatio" value="true" />
@@ -21,6 +20,7 @@
 <plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
 <platform name="android">
+<preference name="phonegap-version" value="4.0.2" />
 <icon src="res/android/SkyNxt.png" qualifier="ldpi" />
 <icon src="res/android/SkyNxt.png" qualifier="mdpi" />
 <icon src="res/android/SkyNxt.png" qualifier="hdpi" />
