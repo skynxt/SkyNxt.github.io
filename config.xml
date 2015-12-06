@@ -12,7 +12,11 @@
 	<plugin name="cordova-plugin-splashscreen" source="npm" />
 	<plugin name="phonegap-plugin-barcodescanner" source="npm" />
 	<plugin name="cordova-plugin-whitelist" />
-	<preference name="SplashScreenDelay" value="10000" />
+	
+	<preference name="SplashScreen" value="res/screen/android/SkyNxt.png" />
+	<preference name="AutoHideSplashScreen" value="true" />
+	<preference name="SplashScreenDelay" value="3000" />
+	<preference name="SplashMaintainAspectRatio" value="true" />
 
 	<access origin="*" />
 	<platform name="android">
