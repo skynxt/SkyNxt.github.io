@@ -12,7 +12,6 @@
 	<plugin name="cordova-plugin-splashscreen" source="npm" />
 	<plugin name="phonegap-plugin-barcodescanner" source="npm" />
 	<plugin name="cordova-plugin-whitelist" />
-	<preference name="orientation" value="portrait" />
 	<preference name="SplashScreenDelay" value="10000" />
 
 	<access origin="*" />
