@@ -7,7 +7,6 @@
     <author email="contact@skynxt.info" href="http://skynxt.info">
         SkyNxt Team
     </author>
-    <access origin="*" />
 
 	<preference name="orientation" value="portrait" />
 	<preference name="SplashScreenDelay" value="10000" />
