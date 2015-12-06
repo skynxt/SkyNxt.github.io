@@ -9,7 +9,6 @@
     </author>
     <access origin="*" />
 
-	<preference name="Fullscreen" value="true" />
 	<preference name="orientation" value="portrait" />
 	<preference name="SplashScreenDelay" value="10000" />
 

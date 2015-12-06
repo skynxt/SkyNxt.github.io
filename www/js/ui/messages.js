@@ -100,6 +100,24 @@ $scope.toggleMessageType = function()
 	}
 }
 
+$scope.scanBarCode = function()
+{
+	try {
+	cordova.plugins.barcodeScanner.scan(
+	  function (result) {		
+		  if(result.cancelled == false && result.format == "QR_CODE")
+		  {			  
+			  $scope.recipient_address.text = String(result.text);
+		  }
+	  }, 
+	  function (error) {
+	  }
+   );
+   } catch (e) {
+			
+		}
+}
+	
 $scope.$on('$ionicView.enter', function(){
 	if($rootScope.messageRecipient)
 	{
