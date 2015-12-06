@@ -7,30 +7,25 @@
     <author email="contact@skynxt.info" href="http://skynxt.info">
         SkyNxt Team
     </author>
-    <content src="index.html" />
     <access origin="*" />
-	<preference name="SplashScreen" value="screen" />
-	<preference name="SplashScreenDelay" value="10000" />
-	<preference name="SplashMaintainAspectRatio" value="true" />
+
+	<preference name="Fullscreen" value="true" />
 	<preference name="orientation" value="portrait" />
+	<preference name="SplashScreenDelay" value="10000" />
 
 	<plugin name="cordova-plugin-file" source="npm" />
 	<plugin name="cordova-plugin-splashscreen" source="npm" />
 	<plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
 	<platform name="android">
-	<preference name="phonegap-version" value="4.0.2" />
-	<preference name="AndroidPersistentFileLocation" value="Compatibility" />
-	<icon src="res/android/SkyNxt.png" qualifier="ldpi" />
-	<icon src="res/android/SkyNxt.png" qualifier="mdpi" />
-	<icon src="res/android/SkyNxt.png" qualifier="hdpi" />
-	<icon src="res/android/SkyNxt.png" qualifier="xhdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="ldpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="mdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="hdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="xhdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="fr-xhdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="port-xxhdpi" />
-	<splash src="res/screen/android/SkyNxt.png" qualifier="land-xxhdpi" />
+		<preference name="AndroidPersistentFileLocation" value="Compatibility" />
+		<icon src="res/android/SkyNxt.png" qualifier="ldpi" />
+		<icon src="res/android/SkyNxt.png" qualifier="mdpi" />
+		<icon src="res/android/SkyNxt.png" qualifier="hdpi" />
+		<icon src="res/android/SkyNxt.png" qualifier="xhdpi" />
+		<splash src="res/screen/android/SkyNxt.png" qualifier="ldpi" />
+		<splash src="res/screen/android/SkyNxt.png" qualifier="mdpi" />
+		<splash src="res/screen/android/SkyNxt.png" qualifier="hdpi" />
+		<splash src="res/screen/android/SkyNxt.png" qualifier="xhdpi" />
 	</platform>
 </widget>
