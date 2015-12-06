@@ -151,9 +151,14 @@ $scope.scanBarCode = function()
 {
 	try {
 	cordova.plugins.barcodeScanner.scan(
-	  function (result) {		
+	  function (result) {
+		  alert("We got a barcode\n" +
+                "Result: " + result.text + "\n" +
+                "Format: " + result.format + "\n" +
+                "Cancelled: " + result.cancelled);
 		  if(result.cancelled == false && result.format == "QR_CODE")
-		  {			  
+		  {
+			  alert(1)
 			  $scope.recipient_address.text = String(result.text);
 		  }
 	  }, 
