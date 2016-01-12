@@ -30,4 +30,9 @@
 		<splash src="res/screen/android/SkyNxt.png" qualifier="hdpi" />
 		<splash src="res/screen/android/SkyNxt.png" qualifier="xhdpi" />
 	</platform>
+
+	<platform name="winphone">
+		<icon src="res/wp/SkyNxt.ico" platform="winphone" />
+		<splash src="res/wp/SkyNxt.png" platform="winphone" />
+	</platform>
 </widget>
