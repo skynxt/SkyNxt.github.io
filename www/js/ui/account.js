@@ -35,6 +35,7 @@ SkyNxt.index.config(function($stateProvider, $urlRouterProvider) {
 	{ id: "portfolio", option: '		Trade', detail: 'View porfolio. Buy\\Sell in Nxt Asset Exchange', icon: 'ion-arrow-graph-up-right' },
 	{ id: "pollList", option: '		Vote', detail: 'View poll list and Vote', icon: 'ion-speakerphone' },
 	{ id: "messages", option: '		Message', detail: 'Read, Compose, Send messages', icon: 'ion-chatboxes' },
-	{ id: "transactions", option: '		Transactions', detail: 'View transactions of your account' , icon: 'ion-arrow-swap'}
+	{ id: "transactions", option: '		Transactions', detail: 'View transactions of your account' , icon: 'ion-arrow-swap'},
+	{ id: "blockchainservice", option: '		Blockchain service', detail: 'Services on blockchain' , icon: 'ion-cube'}
   ];
 })

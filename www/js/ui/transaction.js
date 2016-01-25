@@ -488,7 +488,7 @@ function broadcastTransaction(tx, callbackFunc)
 				var parsedjson = $.parseJSON(json);
 				if(callbackFunc)
 				{
-					callbackFunc("Success");
+					callbackFunc(parsedjson);
 				}
 			}
 		}).fail(function(xhr, textStatus, error) {

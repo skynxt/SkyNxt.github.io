@@ -53,6 +53,7 @@ THE SOFTWARE.
 	<script type="text/javascript" src="js/crypto/jssha256.js"></script>
 	<script type="text/javascript" src="js/crypto/sha256.js"></script>
 	<script type="text/javascript" src="js/crypto/converters.js"></script>
+	<script type="text/javascript" src="js/crypto/merkle.js"></script>
 	<script type="text/javascript" src="js/ui/peerdiscovery.js"></script>
 	<script type="text/javascript" src="js/ui/file.js"></script>
 	<script type="text/javascript" src="js/ui/address.js"></script>
@@ -66,6 +67,7 @@ THE SOFTWARE.
 	<script type="text/javascript" src="js/ui/vote.js"></script>
 	<script type="text/javascript" src="js/ui/messages.js"></script>
 	<script type="text/javascript" src="js/ui/accounttransactions.js"></script>
+	<script type="text/javascript" src="js/ui/blockchainservice.js"></script>
 	<script type="text/javascript" charset="utf-8">
 
 		// device APIs are available
@@ -88,7 +90,7 @@ THE SOFTWARE.
 			}
 			else 
 			{
-			   SkyNxt.discover(); // browser
+			   //SkyNxt.discover(); // browser
 			}
 		});
 
@@ -700,6 +702,68 @@ function loaderIconText(msgText) {
 		</ion-content>	
 	</ion-view>
 </script>
+
+<script id="templates/blockchainservice.html" type="text/ng-template">
+	<ion-view view-title="Blockchain services">
+		<ion-nav-buttons side="left">
+			  <a class="button button-icon ion-arrow-left-c" href="#account"></a>
+		 </ion-nav-buttons> 
+		<ion-content class="padding">
+	<div class="list">
+		<a href="#proofofexistence" class="item">
+			<div class="item-input-inset item-icon-left">
+				<i class="icon ion-document"></i>
+				<span>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Proof of Existence</strong><br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Submit proof, verify files as of a specific time on NXT blockchain
+				</span>
+			</div>
+		</a>
+	</div>
+		</ion-content>	
+	</ion-view>
+</script>
+
+<script id="templates/proofofexistence.html" type="text/ng-template">
+<ion-view view-title="Proof of Existence">
+<ion-nav-buttons side="left">
+      <a class="button button-icon ion-arrow-left-c" href="#blockchainservice"></a>
+ </ion-nav-buttons>
+<ion-content>
+		<ion-toggle ng-click="toggleProofVerify()" on-swipe="toggleProofVerify()" ng-model="prove">
+			<div ng-bind="statusTxt"></div>
+		</ion-toggle>
+<p></p>
+	<div class="row">
+		<div class="col">
+			<button class="button button-balanced button-small icon icon-left ion-document" style="position: absolute;">&nbsp;&nbsp;<span style="font-size:20px;">Select file</span></button>
+			<input type="file" ng-file-select="onFileSelect($files)" style="position: absolute;opacity:0;"/>
+			<span class="padding">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File(s) do NOT leave your device</span>
+		</div>
+
+		<div class="col">
+			<button class="button button-positive" ng-click="submit()" >{{submitType}}</button>
+		</div>
+	</div>
+
+<p></p>
+<ion-list show-delete="data.showDelete">
+	<ion-item ng-repeat="item in items" class="item-remove-animate">
+		<div class="row">
+			<div class="col">
+			{{ item.fileName }} &nbsp;&nbsp;
+			</div>
+			<div class="col">
+			{{ item.hexProof }}
+			</div>
+		</div>
+	<ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(item)"></ion-delete-button>
+	</ion-item>
+</ion-list>
+</ion-content>
+</ion-view>
+</script>
+
 </div>
 </body>
 </html>
