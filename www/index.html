@@ -326,39 +326,56 @@ function loaderIconText(msgText) {
 
 <script id="buy.html" type="text/ng-template">
 <ion-view view-title="Buy - {{currentAsset.name}}">
-<!-- <ion-nav-buttons side="left">
-      <a class="button icon ion-arrow-return-left" href="#portfolio"></a>
- </ion-nav-buttons> 
- -->	<ion-content>
-	
-		<label class="item item-input-wrapper item-floating-label">
-		  <span class="input-label">Buy Price</span>
-		  <input type="text" ng-model="buyprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Buy Price">
-		</label>		  
-		<label class="item item-input-wrapper item-floating-label">
-		  <span class="input-label">Buy Quantity</span>
-		  <input type="text" ng-model="buyquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Buy Quantity">
-		</label>	
+	<ion-content>
 	<div class="row">
-	  <div class="col text-center"><button class="button icon ion-arrow-graph-up-right icon-center button-positive" ng-click="buy()">
-		  Buy
-		</button>
-	  </div>	  
-	  <div class="col text-center"><span>Total: <strong>{{  formatTotal }}</strong><span>&nbsp;NXT</span></div>
-	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="buyOrders()"></button></div>
+		<div class="col col-90">
+			<label class="item item-input">
+				<input type="text" style="font-size:20px !important;" ng-model="buyprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Buy Price">
+			</label>
+		</div>
+		<div class="col">
+			<p></p>
+			<strong>NXT</strong>
+		</div>
 	</div>
-		
-		<p></p>
-			<div class="list text-center">
-			<div class="row">
-			  <div class="col"><strong>Price</strong></div>
-			  <div class="col"><strong>Quantity</strong></div>
-			</div>
-			<div class="row gridstyle text-center" ng-click="setaskOrder(askorder);formatTotalFunc();" ng-repeat="askorder in askorders">
-			  <div class="col">{{ askorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
-			  <div class="col">{{ askorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
-			</div>
-			</div>
+	
+	<div class="row">
+		<div class="col col-90">
+			<label class="item item-input">
+				<input type="text" style="font-size:20px !important;" ng-model="buyquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Buy Quantity">
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col col-20">
+			Total : 
+		</div>
+		<div class="col">
+			<strong>{{  formatTotal }}</strong> NXT
+		</div>
+	</div>
+
+	<div class="row text-center ">
+		<div class="col">
+			<button class="button button-balanced button-full icon ion-arrow-graph-up-right" ng-click="buy()">&nbsp;<strong>Buy</strong></button>
+		</div>
+		<div class="col  col-20">
+			<p></p>
+			<div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="buyOrders()"></button></div>
+		</div>
+	</div>
+	<div class="list text-center">
+		<hr style="display: block;height: 1px;border: 0;border-top: 1px solid #ccc;margin: 1em 0; padding: 0;">
+		<div class="row">
+			<div class="col"><strong>Price</strong> (NXT)</div>
+			<div class="col"><strong>Quantity</strong></div>
+		</div>
+		<div class="row gridstyle text-center" ng-click="setaskOrder(askorder);formatTotalFunc();" ng-repeat="askorder in askorders">
+			<div class="col">{{ askorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
+			<div class="col">{{ askorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
+		</div>
+	</div>
 	
 	</ion-content>
 </ion-view>
@@ -367,34 +384,54 @@ function loaderIconText(msgText) {
 <script id="sell.html" type="text/ng-template">
 <ion-view view-title="Sell - {{currentAsset.name}}">
 	<ion-content>
-	<div class="list">
-		<label class="item item-input-wrapper item-floating-label">
-		  <span class="input-label">Sell Price</span>
-		  <input type="text" ng-model="sellprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Sell Price">
-		</label>		  
-		<label class="item item-input-wrapper item-floating-label">
-		  <span class="input-label">Sell Quantity</span>
-		  <input type="text" ng-model="sellquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Sell Quantity">
-		</label>	
+	
+		<div class="row">
+		<div class="col col-90">
+			<label class="item item-input">
+				<input type="text" style="font-size:20px !important;" ng-model="sellprice.text" ng-keydown="keydowneventPrice($event)" ng-change="formatTotalFunc()" placeholder="Sell Price">
+			</label>
+		</div>
+		<div class="col">
+			<p></p>
+			<strong>NXT</strong>
+		</div>
+	</div>
+
 	<div class="row">
-		<div class="col text-center"><button class="button icon ion-arrow-graph-down-right icon-center button-positive" ng-click="sell()">
-		  Sell
-		</button></div>	    
-	  <div class="col text-center"><span>Total: <strong>{{ formatTotal }}</strong><span>&nbsp;NXT</span></div>
-	  <div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="sellOrders()"></button></div>
-	</div>		
-		
-		<p></p>
-			<div class="list">
-			<div class="row text-center">
-			  <div class="col"><strong>Price</strong></div>
-			  <div class="col"><strong>Quantity</strong></div>
-			</div>
-			<div class="row gridstyle text-center" ng-click="setbidOrder(bidorder);formatTotalFunc();" ng-repeat="bidorder in bidorders.slice().reverse()">
-			  <div class="col">{{ bidorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
-			  <div class="col">{{ bidorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
-			</div>
-			</div>
+		<div class="col col-90">
+			<label class="item item-input">
+				<input type="text" style="font-size:20px !important;" ng-model="sellquantity.text" ng-keydown="keydowneventQuantity($event)" ng-change="formatTotalFunc()" placeholder="Sell Quantity">
+			</label>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col col-20">
+			Total : 
+		</div>
+		<div class="col">
+			<strong>{{  formatTotal }}</strong> NXT
+		</div>
+	</div>
+
+	<div class="row text-center ">
+		<div class="col">
+			<button class="button button-assertive button-full icon ion-arrow-graph-down-right" ng-click="sell()">&nbsp;<strong>Sell</strong></button>
+		</div>
+		<div class="col  col-20">
+			<p></p>
+			<div class="col text-right"><button class="button button-small icon ion-ios-reload" ng-click="sellOrders()"></button></div>
+		</div>
+	</div>
+
+	<hr style="display: block;height: 1px;border: 0;border-top: 1px solid #ccc;margin: 1em 0; padding: 0;">
+	<div class="row text-center">
+		<div class="col"><strong>Price</strong> (NXT)</div>
+		<div class="col"><strong>Quantity</strong></div>
+	</div>
+	<div class="row gridstyle text-center" ng-click="setbidOrder(bidorder);formatTotalFunc();" ng-repeat="bidorder in bidorders.slice().reverse()">
+		<div class="col">{{ bidorder.priceNQT | formatPrice: currentAsset.decimals }}</div>
+		<div class="col">{{ bidorder.quantityQNT | formatQuantity: currentAsset.decimals }}</div>
 	</div>
 	</ion-content>
 </ion-view>
