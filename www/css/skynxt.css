@@ -12,9 +12,9 @@
   /* Colour of your points */
   stroke: rgba(151,187,205,1);
   /* Size of your points */
-  stroke-width: 3.5px;
+  stroke-width: 2px;
   /* Make your points appear as squares */
-  stroke-linecap: square;
+  /*stroke-linecap: square;*/
 }	
 .ct-square:before{padding-bottom:125%}
 .ct-label{color:rgba(151,187,205,1);}

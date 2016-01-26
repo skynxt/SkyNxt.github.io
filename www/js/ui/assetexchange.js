@@ -537,6 +537,11 @@ $scope.$on('$ionicView.enter', function(){
 			graphDataLabel.push(parseInt(sortedList[i].timestamp));				
 			graphDataPrice.push(parseFloat($filter('formatPrice')(sortedList[i].priceNQT, SkyNxt.currentAsset.decimals)));			
 		}
+
+		var px = 14;
+		var numChars = 6;
+		var width = Math.floor($(window).width() / (px * numChars));
+		width = Math.floor(graphDataLabel.length / width);
 		
 		chartData = {
 			labels: graphDataLabel,
@@ -545,45 +550,30 @@ $scope.$on('$ionicView.enter', function(){
 
 	if(graphDataLabel.length > 0)
 	{
-		var labelPlacement = 20;
 		if($(window).width() > $(window).height())
 		{
-			$("#chart" ).removeClass( "ct-square" ).addClass( "ct-major-tenth" );
-			labelPlacement = 10;
+			$("#assetchart" ).removeClass( "ct-square" ).addClass( "ct-major-tenth" );
 		}
 		else		
-			$("#chart" ).removeClass( "ct-major-tenth" ).addClass( "ct-square" );
+			$("#assetchart" ).removeClass( "ct-major-tenth" ).addClass( "ct-square" );
 		
 		var i = -1;
 		chartOptions = {
 		showArea: true,
-
+		chartPadding: {
+			right: 40
+		},
 		  axisX: {
 		  labelInterpolationFnc: function(value) {
 				i++;
-			  if(i == 0 || (i == graphDataLabel.length-labelPlacement))
-			  {				  
-				  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];	
-				  var str = "";
-				  var timestamp;
-				  if(i == 0)
-				  {
-					  timestamp = parseInt(value);
-				  }
-				  else
-				  {
-					  timestamp = parseInt(graphDataLabel[i+labelPlacement-1]);					  
-				  }
-				  var date = new Date(NRS.formatTimestamp(timestamp));
-				  str = date.getDate() + "-" + monthNames[date.getMonth()].slice(0,3) + "-" + String(date.getFullYear()).slice(2,4);
+				if(i % width == 0)
+				{
+				  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+				  var date = new Date(NRS.formatTimestamp(parseInt(value)));
+				  var str = date.getDate() + "-" + monthNames[date.getMonth()].slice(0,3) + "\n" + String(date.getFullYear());
 				  return str;
-			  }
-			else
-				return "";			
-			  },
-			
-			onlyInteger: true,			
-			showGrid: false,
+				}
+		  }
 		  }
 		};
 
