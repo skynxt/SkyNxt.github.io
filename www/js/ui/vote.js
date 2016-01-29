@@ -96,19 +96,15 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 
 	$scope.pollSearch = { text : '' };
 	
-	$scope.filterPolls = function(e){
-	if(e.keyCode == 13 || $scope.pollSearch.text == ""){
-		voteList.removeDynamicView("pollFilter");
-		var dv = voteList.addDynamicView('pollFilter');
-		dv.applyWhere(function conversation(obj){
-		for (var m in obj){
-			if(String(obj[m]).toLowerCase().indexOf($scope.pollSearch.text.toLowerCase()) != -1)
-				return true;
-		}
-		return false;
-		});
-		$scope.groups = dv.applyFind({ 'finished': !$scope.pollStatus }).data();
+	$scope.clearPollSearch = function()
+	{
+		$scope.pollSearch.text = "";
+		$scope.filterPolls();
 	}
+	
+	$scope.filterPolls = function(e){
+		var regexVal = {'$regex': new RegExp($scope.pollSearch.text,"i")}
+		$scope.groups = voteList.find({'$or':[{votingModel: regexVal}, {description: regexVal}, {accountRS: regexVal}, {name: regexVal}]});
 	}
 
 	$ionicLoading.show({ duration: 30000, noBackdrop: true, template: '<ion-spinner icon="android"></ion-spinner>' });

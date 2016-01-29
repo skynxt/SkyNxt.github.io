@@ -30,7 +30,7 @@ $stateProvider
 	controller: 'transactionsListCtrl'
 })
 })
-.controller('transactionsListCtrl', function($scope, $ionicLoading, $http, $state, $timeout) {
+.controller('transactionsListCtrl', function($scope, $ionicLoading, $http, $state, $timeout, $filter) {
 $scope.showTransactions = function(){
 if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	var transactionsdb = 'undefined';	
@@ -46,46 +46,46 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.isGroupShown = function(group) {
 		return $scope.shownGroup === group;
 	};  	
-
+	
 	$scope.transactionSearch = {text : ''};
 	
+	$scope.clearTransactionSearch = function()
+	{
+		$scope.transactionSearch.text = "";
+		$scope.filterTransactions();
+	}
+	
 	$scope.filterTransactions = function(e){
-		if(e.keyCode == 13 || $scope.transactionSearch.text == ""){
-		transactionsdb.removeDynamicView("transactionsFilter");
-		var dv = transactionsdb.addDynamicView('transactionsFilter');
-		dv.applyWhere(function conversation(obj){
-		for (var m in obj){
-			if(String(obj[m]).toLowerCase().indexOf($scope.transactionSearch.text.toLowerCase()) != -1)
-				return true;
-		}
-		return false;
-		});
-		$scope.groups = dv.applySimpleSort("time").data();
-		}
+		var regexVal = {'$regex': new RegExp($scope.transactionSearch.text,"i")}
+		$scope.groups = transactionsdb.find({'$or':[{type: regexVal}, {dateTime: regexVal}, {from: regexVal}]});
 	}
 	
 	$scope.getType = function(type, subtype) {
 		if(type == SkyNxt.TRANSACTION_TYPE)
 				return { transtype : SkyNxt.PAYMENT, icon : "ion-card" };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_PLACEMENT)
-				return { transtype : SkyNxt.SELL_ORDER, icon : 'ion-arrow-graph-down-right' };
+				return { transtype : SkyNxt.SELL_ORDER, icon : 'ion-arrow-graph-down-right assertive' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
-				return { transtype : SkyNxt.BUY_ORDER, icon : 'ion-arrow-graph-up-right' };
+				return { transtype : SkyNxt.BUY_ORDER, icon : 'ion-arrow-graph-up-right balanced' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
-				return { transtype : SkyNxt.SELL_CANCEL, icon : 'ion-android-cancel' };
+				return { transtype : SkyNxt.SELL_CANCEL, icon : 'ion-android-cancel assertive' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)
-				return { transtype : SkyNxt.BUY_CANCEL, icon : 'ion-android-cancel' };
+				return { transtype : SkyNxt.BUY_CANCEL, icon : 'ion-android-cancel assertive' };
 		if(type == SkyNxt.TYPE_MESSAGING && subtype == SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING)
 				return { transtype : SkyNxt.VOTE, icon : 'ion-speakerphone' };
 		if(type == SkyNxt.TYPE_MESSAGING && subtype == SkyNxt.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE)
-				return { transtype : SkyNxt.MESSAGE, icon : 'ion-chatboxes' };
+				return { transtype : SkyNxt.MESSAGE, icon : 'ion-chatboxes positive' };
 		return { transtype : SkyNxt.OTHER, icon : 'ion-arrow-swap' };
 	}
 
-	$scope.isDataShown = function(group){
+	$scope.isFromShown = function(group){
 		var retVal = $scope.isGroupShown(group);
-		var isPayment = (group.from != "" || group.to !== "") ? true : false;
-		return retVal && isPayment;
+		return ((group.type.indexOf("+") != -1) ? true : false) && retVal;
+	}
+
+	$scope.isToShown = function(group){
+		var retVal = $scope.isGroupShown(group);
+		return ((group.type.indexOf("-") != -1) ? true : false) && retVal
 	}
 	
 	$ionicLoading.show({
@@ -119,22 +119,24 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 				if(nxtAddress == SkyNxt.globalAddress)
 				{
 					if(transType.transtype == SkyNxt.PAYMENT)
-						transType.transtype = "Sent -" + NRS.convertToNXT(trans.amountNQT) + " NXT";
+						transType.transtype = "-" + NRS.convertToNXT(trans.amountNQT) + " NXT";
+					transType.icon += " assertive";
 					fromAdd = address.toString();
 					toAddr = addressRecipient.toString();
 				}
 				else
 				{
 					if(transType.transtype == SkyNxt.PAYMENT)
-						transType.transtype = "Received +" + NRS.convertToNXT(trans.amountNQT) + " NXT";
+						transType.transtype = "+" + NRS.convertToNXT(trans.amountNQT) + " NXT";
+					transType.icon += " balanced";
 					fromAdd = address.toString();
 					toAddr = addressRecipient.toString();
 				}
 			}
-			//NRS.formatTimestamp(parseInt(trans.timestamp))
-			transactionsdb.insert({type : transType.transtype, icon : transType.icon, amount : trans.amountNQT, time: trans.timestamp, from : fromAdd, to : toAddr, confirmations : trans.confirmations, fee : trans.feeNQT})
-			;			
-			$scope.groups = transactionsdb.chain().simplesort("time").data();	
+			
+			transactionsdb.insert({type : transType.transtype, icon : transType.icon, amount : trans.amountNQT, time: trans.timestamp, from : fromAdd, to : toAddr, confirmations : trans.confirmations, fee : trans.feeNQT, dateTime : $filter('formatTimestamp')(trans.timestamp)})
+			;
+			$scope.groups = transactionsdb.chain().simplesort("time").data();
 		}
 	})
 	.error(function(response) {

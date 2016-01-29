@@ -141,7 +141,7 @@ function loaderIconText(msgText) {
 	</div>
 	<div class="row">
 		<div class="col">
-			<button class='button icon icon-center ion-checkmark-circled' ng-click="testNode()">&nbsp;Test</button>
+			<button class='button icon icon-center ion-checkmark-circled' ng-click="testNode()">&nbsp;Connect</button>
 		</div>
 	</div>
 </div>
@@ -263,13 +263,16 @@ function loaderIconText(msgText) {
       <button class="button button-light icon ion-plus-round" ng-click="addAssetID()"></button>
 </ion-nav-buttons> 
  		<ion-content class="padding">
-		<div class="list list-inset">
-		  <label class="item item-input">
-			<i class="icon ion-search placeholder-icon"></i>
-			<input type="text" ng-model="portfolioSearch.text" placeholder="Search portfolio.." ng-keyup="filterPortfolio($event)"></input>
-		  </label>
-		</div>
-			<ion-list>
+		
+      <div class="item-input-inset">
+          <label class="item-input-wrapper">
+            <i class="icon ion-ios-search placeholder-icon"></i>
+            <input type="text" ng-model="portfolioSearch.text" placeholder="Search portfolio.." ng-change="filterPortfolio($event)">
+          </label>
+     			<button class="button button-clear icon ion-ios-close-outline" ng-click="clearPortfolioSearch()"></button>
+        </div>
+  
+			<ion-list>			
 				<div ng-repeat="group in groups">
 					<ion-item class="item-stable"
 						ng-click="toggleGroup(group)"
@@ -516,12 +519,15 @@ function loaderIconText(msgText) {
 			<ion-toggle ng-click="togglePoll()" on-swipe="togglePoll()" ng-model="pollStatus">
 				<div ng-bind="pollStatusTxt"></div>
 			</ion-toggle>
-			<div class="list list-inset">
-			  <label class="item item-input">
-				<i class="icon ion-search placeholder-icon"></i>
-				<input type="text" ng-model="pollSearch.text" placeholder="Search poll details.." ng-keyup="filterPolls($event)"></input>
-			  </label>
+
+			<div class="item-input-inset">
+				<label class="item-input-wrapper">
+					<i class="icon ion-search placeholder-icon"></i>
+					<input type="text" ng-model="pollSearch.text" placeholder="Search poll details.." ng-change="filterPolls($event)"/>				
+				</label>
+				<button class="button button-clear icon ion-ios-close-outline" ng-click="clearPollSearch()"></button>
 			</div>
+			
 			<ion-list>
 				<div ng-repeat="group in groups">
 					<ion-item class="item-stable"
@@ -705,31 +711,36 @@ function loaderIconText(msgText) {
       <a class="button button-icon ion-arrow-left-c" href="#account"></a>
  </ion-nav-buttons> 
 		<ion-content class="padding">
-		<div class="list list-inset">
-		  <label class="item item-input">
-			<i class="icon ion-search placeholder-icon"></i>
-			<input type="text" ng-model="transactionSearch.text" placeholder="Search transactions.." ng-keyup="filterTransactions($event)"></input>
-		  </label>
-		</div>
+			<div class="item-input-inset">
+				<label class="item-input-wrapper">
+					<i class="icon ion-search placeholder-icon"></i>
+					<input type="text" ng-model="transactionSearch.text" placeholder="Search transactions.." ng-change="filterTransactions($event)"/>			
+				</label>
+				<button class="button button-clear icon ion-ios-close-outline" ng-click="clearTransactionSearch()"></button>
+			</div>
+		
 			<ion-list>
 				<div ng-repeat="group in groups.slice().reverse()">
 					<ion-item class="item-stable"
 						ng-click="toggleGroup(group)"
 						ng-class="{active: isGroupShown(group)}">
-						<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
-						&nbsp;
-						<i class="icon {{group.icon}}"></i>
-						&nbsp;
-						{{group.type}}
+							<div class="row">
+							<div class="col">
+								<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+								&nbsp;
+								<i class="icon {{group.icon}}"></i>								
+								<span class="">{{group.type}}</span>
+							</div>
+							<div class="col col-20" style='padding: 0px; font-size:10px;'>
+								<strong><span>{{group.dateTime | split:" ":0}}<br/>{{group.dateTime | split:" ":1}}</span></strong>
+							</div>
+							</div>
 					</ion-item>
-					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
-						Date: {{group.time | formatTimestamp}}
+					<ion-item class="item-accordion" ng-show="isFromShown(group)">
+						From: &nbsp;{{group.from}}
 					</ion-item>
-					<ion-item class="item-accordion" ng-show="isDataShown(group)">
-						From: {{group.from}}
-					</ion-item>
-					<ion-item class="item-accordion" ng-show="isDataShown(group)">
-						To: &nbsp;&nbsp;&nbsp;&nbsp;{{group.to}}
+					<ion-item class="item-accordion" ng-show="isToShown(group)">
+						To: &nbsp;{{group.to}}
 					</ion-item>
 					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
 						Fee: {{group.fee | formatAmount}} NXT, &nbsp;&nbsp; Confirmations: {{group.confirmations}}
@@ -752,7 +763,7 @@ function loaderIconText(msgText) {
 				<i class="icon ion-document"></i>
 				<span>
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Proof of Existence</strong><br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Submit proof, verify files as of a specific time on NXT blockchain
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Submit proof, verify on blockchain
 				</span>
 			</div>
 		</a>
@@ -771,11 +782,11 @@ function loaderIconText(msgText) {
 			<div ng-bind="statusTxt"></div>
 		</ion-toggle>
 <p></p>
+	<span class="padding">File(s) do NOT leave your device</span>
 	<div class="row">
 		<div class="col">
 			<button class="button button-balanced button-small icon icon-left ion-document" style="position: absolute;">&nbsp;&nbsp;<span style="font-size:20px;">Select file</span></button>
-			<input type="file" ng-file-select="onFileSelect($files)" style="position: absolute;opacity:0;"/>
-			<span class="padding">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File(s) do NOT leave your device</span>
+			<input type="file" ng-file-select="onFileSelect($files)" style="position: absolute;opacity:0;"/>			
 		</div>
 
 		<div class="col">

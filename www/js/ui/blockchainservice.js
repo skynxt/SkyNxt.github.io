@@ -184,41 +184,53 @@ $scope.verifyProof = function()
 			onTap: function(e) {
 				if($scope.verify.text)
 				{
-				var parsedJson = $.parseJSON($scope.verify.text);
-				if (parsedJson.transaction) {
-					$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
-					$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getTransaction&transaction=' + $scope.verify.text.transaction)
-					.success(function(response) {
-						$ionicLoading.hide();
-						if(response.errorCode)
-						{
-							$scope.toggleProofVerify();
-						}
-						else
-						{
-							if(response.attachment && response.attachment.message)
+					var parsedJson = "";
+					try{
+						parsedJson = $.parseJSON($scope.verify.text);
+					}
+					catch(ex)
+					{
+					}
+					if (parsedJson.transaction) {
+						$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
+						$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getTransaction&transaction=' + $scope.verify.text.transaction)
+						.success(function(response) {
+							$ionicLoading.hide();
+							if(response.errorCode)
 							{
-								$scope.merkelRootProof = response.attachment.message;
-								$scope.hashItemsProof = parsedJson.hashItems;
+								$scope.toggleProofVerify();
 							}
 							else
 							{
-								$ionicLoading.show({ template: 'Incorrect receipt!', noBackdrop: true, duration: 4000 });
-								$scope.toggleProofVerify();
+								if(response.attachment && response.attachment.message)
+								{
+									$scope.merkelRootProof = response.attachment.message;
+									$scope.hashItemsProof = parsedJson.hashItems;
+								}
+								else
+								{
+									$ionicLoading.show({ template: 'Incorrect receipt!', noBackdrop: true, duration: 4000 });
+									$scope.toggleProofVerify();
+								}
 							}
-						}
-					})
-					.error(function(response) {
-						$ionicLoading.hide();
-						$ionicLoading.show({ template: 'Alert - Network connection failed!', noBackdrop: true, duration: 4000 });
+						})
+						.error(function(response) {
+							$ionicLoading.hide();
+							$ionicLoading.show({ template: 'Alert - Network connection failed!', noBackdrop: true, duration: 4000 });
+							$scope.toggleProofVerify();
+						});
+					}
+					else
+					{
+						resultPopup.close();
+						$ionicLoading.show({ template: 'Incorrect receipt!', noBackdrop: true, duration: 4000 });
 						$scope.toggleProofVerify();
-					});
+					}
 				}
 				else
 				{
 					$scope.toggleProofVerify();
 				}
-			}
 			}
 		}
 	]
@@ -230,13 +242,13 @@ $scope.toggleProofVerify = function()
 	$scope.prove = !$scope.prove;
 	if($scope.prove)
 	{
-		$scope.statusTxt = "Please select file(s) to submit proof and receive proof receipt";
+		$scope.statusTxt = "Select file(s) to submit proof";
 		$scope.submitType = "Submit Proof";
 	}
 	else
 	{
 		$scope.verifyProof();
-		$scope.statusTxt = "Please select file(s) to verify against the receipt";
+		$scope.statusTxt = "Select file(s) to verify proof";
 		$scope.submitType = "Verify Proof";
 	}
 	$scope.merkelRootProof = "";

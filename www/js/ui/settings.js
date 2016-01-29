@@ -79,7 +79,15 @@ $scope.testIPAddress = function()
 {	
 		var ip = String($scope.ip.text).replace(/\s+/g, '');
 		var port = String($scope.port.text).replace(/\s+/g, '');
-		var addr = ip + ":" + port;
+		var addr = "";
+		if(port)
+		{
+			addr = ip + ":" + port;
+		}
+		else
+		{
+			addr = ip;
+		}
 		
 		if($scope.httpsConnDone)
 			addr = SkyNxt.HTTPS_NODE + addr;

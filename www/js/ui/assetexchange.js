@@ -97,20 +97,16 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.groups = [];
 	$scope.portfolioSearch = { text : '' };
 	
+	$scope.clearPortfolioSearch = function()
+	{
+		$scope.portfolioSearch.text = "";
+		$scope.filterPortfolio();
+	}
+	
 	$scope.filterPortfolio = function(e){
-	if(e.keyCode == 13 || $scope.portfolioSearch.text == ""){
-	assetsdb.removeDynamicView("porfolioFilter");
-		var dv = assetsdb.addDynamicView('porfolioFilter');
-		dv.applyWhere(function conversation(obj){
-		for (var m in obj){
-			if(String(obj[m]).toLowerCase().indexOf($scope.portfolioSearch.text.toLowerCase()) != -1)
-				return true;
-		}
-		return false;
-		});
-		$scope.groups = dv.applySimpleSort("name").data();
-	}
-	}
+		var regexVal = {'$regex': new RegExp($scope.portfolioSearch.text,"i")}
+		$scope.groups = assetsdb.find({'$or':[{name: regexVal}, {description: regexVal}]});
+	}	
 	
 	$scope.toggleGroup = function(group) {
 		if ($scope.isGroupShown(group)) {
@@ -138,7 +134,7 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		$scope.groups = [];
 		for (var i=0; i < response.accountAssets.length; i++) {
 			var asset = response.accountAssets[i];
-			assetsdb.insert({asset : asset.asset, name : asset.name, quantityQNT: asset.quantityQNT, decimals : parseInt(asset.decimals, 10)});
+			assetsdb.insert({asset : asset.asset, name : asset.name, description : asset.description, quantityQNT: asset.quantityQNT, decimals : parseInt(asset.decimals, 10)});
 		}
 		$scope.groups = assetsdb.chain().simplesort("name").data();
 	})

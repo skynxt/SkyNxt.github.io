@@ -31,6 +31,13 @@ SkyNxt.index = angular.module('skynxt', ['ionic', 'ionic.contrib.frostedGlass'])
   return function(asset){
     return NRS.convertToQNTf(asset.quantityQNT, asset.decimals);
   }
+})
+.filter('split', function() {
+	//{{test | split:'.':1}} call format
+	return function(input, charVal, i) {
+		var splitArr = input.split(charVal);
+		return splitArr[i];
+	}
 });
 
 SkyNxt.isControlKey = function(charCode) {
