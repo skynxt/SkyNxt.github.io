@@ -176,14 +176,14 @@ function loaderIconText(msgText) {
  <ion-view view-title="SkyNxt">
 <ion-content>
 	<div class="list list-inset">
-	  <label class="item item-input">
-		<i class="ion-person placeholder-icon"></i>
-		<input type="text" ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()">
+	<button class="button button-clear icon {{showPassphrase}}" ng-click="switchPassphraseView()"></button>
+	  <label class="item item-input">		
+		<input type={{passPhrase}} ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()"/>
 	  </label>
-	</div>
+	</div>	
 	<p></p>
 	<div class="col text-center">
-		<span>{{globalAddress}}</span> &nbsp;&nbsp; <button class='button icon ion-ios-barcode-outline' ng-click="showQR()"></button>
+		<span>{{globalAddress}}</span> &nbsp;&nbsp; <button class='button icon ion-ios-barcode-outline positive' ng-click="showQR()"></button>
 	</div>	
 	<p></p>
    <div class="padding">
@@ -276,20 +276,24 @@ function loaderIconText(msgText) {
 				<div ng-repeat="group in groups">
 					<ion-item class="item-stable"
 						ng-click="toggleGroup(group)"
-						ng-class="{active: isGroupShown(group)}">
-						<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
-						&nbsp;
-						{{group.name}}
-					</ion-item>
+						ng-class="{active: isGroupShown(group)}"  style='padding: 7px !important;'>
+							<div class='row'>
+								<div class='col col-70'>
+									<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
+									&nbsp;
+									{{group.name}}
+								</div>
+								<div class='col'>
+									<strong><span class='positive' style='font-size:12px;'>{{group | formatBalance}}</span></strong>
+								</div>
+							</div>
+						</ion-item>
 					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
 						Asset ID: <a href='#' ng-click="assetTabs(group)">{{group.asset}} </a>
 					</ion-item>
-					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
-						Balance: {{group | formatBalance}}
-					</ion-item>
 				</div>
 			</ion-list>
-		</ion-content>	
+		</ion-content>
 	</ion-view>
 </script>
 
@@ -351,11 +355,11 @@ function loaderIconText(msgText) {
 	</div>
 
 	<div class="row">
-		<div class="col col-20">
-			Total : 
-		</div>
 		<div class="col">
-			<strong>{{  formatTotal }}</strong> NXT
+			Total:&nbsp;<strong>{{  formatTotal }}</strong> NXT
+		</div>
+		<div class="col col-50">
+			Balance:&nbsp;{{currentAsset | formatBalance}}
 		</div>
 	</div>
 
@@ -409,11 +413,11 @@ function loaderIconText(msgText) {
 	</div>
 
 	<div class="row">
-		<div class="col col-20">
-			Total : 
-		</div>
 		<div class="col">
-			<strong>{{  formatTotal }}</strong> NXT
+			Total:&nbsp;<strong>{{  formatTotal }}</strong> NXT
+		</div>
+		<div class="col col-50">
+			Balance:&nbsp;{{currentAsset | formatBalance}}
 		</div>
 	</div>
 
@@ -723,12 +727,12 @@ function loaderIconText(msgText) {
 				<div ng-repeat="group in groups.slice().reverse()">
 					<ion-item class="item-stable"
 						ng-click="toggleGroup(group)"
-						ng-class="{active: isGroupShown(group)}">
+						ng-class="{active: isGroupShown(group)}" style='padding: 7px !important;'>
 							<div class="row">
 							<div class="col">
 								<i class="icon" ng-class="isGroupShown(group) ? 'ion-minus' : 'ion-plus'"></i>
 								&nbsp;
-								<i class="icon {{group.icon}}"></i>								
+								<i class="icon {{group.icon}}" style='font-size:20px;'></i>								
 								<span class="">{{group.type}}</span>
 							</div>
 							<div class="col col-20" style='padding: 0px; font-size:10px;'>
@@ -742,8 +746,11 @@ function loaderIconText(msgText) {
 					<ion-item class="item-accordion" ng-show="isToShown(group)">
 						To: &nbsp;{{group.to}}
 					</ion-item>
+					<ion-item class="item-accordion" ng-show="isAssetShown(group)">
+						Asset : {{group.asset}}
+					</ion-item>
 					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
-						Fee: {{group.fee | formatAmount}} NXT, &nbsp;&nbsp; Confirmations: {{group.confirmations}}
+						Fee: {{group.fee | formatAmount}} NXT, &nbsp;&nbsp; Confirmations: <span class={{group.confirmDispColor}}>{{group.confirmations}}</span>
 					</ion-item>
 				</div>
 			</ion-list>

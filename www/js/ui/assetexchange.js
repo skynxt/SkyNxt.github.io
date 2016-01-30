@@ -201,6 +201,7 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 }
 })
 .controller('buyTabCtrl', function($rootScope, $scope, $ionicLoading, $ionicPopup, $http, $filter) {
+$scope.currentAsset = SkyNxt.currentAsset;
 $scope.$on('$ionicView.enter', function(){ 
 if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 {
@@ -293,6 +294,7 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 });
 })
 .controller('sellTabCtrl', function($rootScope, $scope, $ionicLoading, $ionicPopup, $http, $filter) {
+$scope.currentAsset = SkyNxt.currentAsset;
 $scope.$on('$ionicView.enter', function(){ 
 if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 	$scope.bidorders = [];
@@ -562,16 +564,24 @@ $scope.$on('$ionicView.enter', function(){
 		  axisX: {
 		  labelInterpolationFnc: function(value) {
 				i++;
+				// if((graphDataLabel.length % width) != 0 && i + width > graphDataLabel.length && (i == graphDataLabel.length-1))
+				// {
+					// return $scope.convertToDate(graphDataLabel[graphDataLabel.length - 1]);
+				// }
 				if(i % width == 0)
 				{
-				  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-				  var date = new Date(NRS.formatTimestamp(parseInt(value)));
-				  var str = date.getDate() + "-" + monthNames[date.getMonth()].slice(0,3) + "\n" + String(date.getFullYear());
-				  return str;
+					return $scope.convertToDate(value);
 				}
 		  }
 		  }
 		};
+$scope.convertToDate = function(value)
+{
+	var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var date = new Date(NRS.formatTimestamp(parseInt(value)));
+	var str = date.getDate() + "-" + monthNames[date.getMonth()].slice(0,3) + "\n" + String(date.getFullYear());
+	return str;
+}
 
 		var chartDrawn = new Chartist.Line("#assetchart",chartData, chartOptions);		
 	}		

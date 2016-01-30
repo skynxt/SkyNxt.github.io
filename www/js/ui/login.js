@@ -37,6 +37,23 @@ $scope.passphrase = {
         text: ''
 };
 $scope.globalAddress = "";
+$scope.showPassphrase = "ion-eye";
+$scope.passPhrase = "text";
+
+$scope.switchPassphraseView = function()
+{
+	if($scope.passPhrase === "text")
+	{
+		$scope.showPassphrase = "ion-eye-disabled";
+		$scope.passPhrase = "password";
+	}
+	else
+	{
+		$scope.showPassphrase = "ion-eye";
+		$scope.passPhrase = "text";
+	}
+}
+
 $scope.passPhraseEntered = function()
 {
 if($scope.passphrase.text == "")

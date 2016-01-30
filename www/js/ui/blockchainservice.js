@@ -67,7 +67,17 @@ $scope.getFile = function (file, $scope) {
 	var reader = new FileReader();
 
 	reader.onloadend = function(e){
-		var hexHash = converters.byteArrayToHexString(converters.wordArrayToByteArray(CryptoJS.SHA256(e.target.result)));
+		var hexHash;
+		try
+		{
+			hexHash = converters.byteArrayToHexString(converters.wordArrayToByteArray(CryptoJS.SHA256(e.target.result)));
+		}
+		catch(ex)
+		{
+			$ionicLoading.show({ template: "<span class='assertive'>File too large to hash!</span>", noBackdrop: true, duration: 3000 });
+			$scope.$apply();
+			return;
+		}
 		if(!$scope.prove)
 		{
 			var found = false;

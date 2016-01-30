@@ -121,17 +121,11 @@ $scope.testIPAddress = function()
 				SkyNxt.PEER_IP_UI = $scope.ip.text;
 				SkyNxt.PEER_PORT_UI = $scope.port.text;
 			}
-			$ionicPopup.alert({
-				title: 'Test result',
-				template: 'Node connection success!'
-			});
+			$ionicLoading.show({ template: "<span class='balanced'>Node connection success!</span>", noBackdrop: true, duration: 2000 });
 		}
 		else
 		{
-			$ionicPopup.alert({
-				title: 'Error',
-				template: 'Error returned by Node. Please check the your Node configuration.'
-			});
+			$ionicLoading.show({ template: "<span class='assertive'>Error returned by Node. Please check the your Node configuration!</span>", noBackdrop: true, duration: 3000 });
 		}
 	})
 	.error(function(response) {
@@ -142,10 +136,7 @@ $scope.testIPAddress = function()
 		}
 		else
 		{
-			$ionicPopup.alert({
-				title: 'Test result',
-				template: 'Node Unreachable. Please check the your Node configuration.'
-			});
+			$ionicLoading.show({ template: "<span class='assertive'>Node Unreachable. Please check the your Node configuration.</span>", noBackdrop: true, duration: 3000 });
 		}
 	});	
 }

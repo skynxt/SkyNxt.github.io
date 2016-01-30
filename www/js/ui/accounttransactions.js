@@ -46,7 +46,7 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 	$scope.isGroupShown = function(group) {
 		return $scope.shownGroup === group;
 	};  	
-	
+		
 	$scope.transactionSearch = {text : ''};
 	
 	$scope.clearTransactionSearch = function()
@@ -67,14 +67,12 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 				return { transtype : SkyNxt.SELL_ORDER, icon : 'ion-arrow-graph-down-right assertive' };
 		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_PLACEMENT)
 				return { transtype : SkyNxt.BUY_ORDER, icon : 'ion-arrow-graph-up-right balanced' };
-		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION)
+		if(type == SkyNxt.TYPE_COLORED_COINS && (subtype == SkyNxt.SUBTYPE_COLORED_COINS_ASK_ORDER_CANCELLATION || subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION))
 				return { transtype : SkyNxt.SELL_CANCEL, icon : 'ion-android-cancel assertive' };
-		if(type == SkyNxt.TYPE_COLORED_COINS && subtype == SkyNxt.SUBTYPE_COLORED_COINS_BID_ORDER_CANCELLATION)
-				return { transtype : SkyNxt.BUY_CANCEL, icon : 'ion-android-cancel assertive' };
 		if(type == SkyNxt.TYPE_MESSAGING && subtype == SkyNxt.SUBTYPE_MESSAGING_VOTE_CASTING)
 				return { transtype : SkyNxt.VOTE, icon : 'ion-speakerphone' };
 		if(type == SkyNxt.TYPE_MESSAGING && subtype == SkyNxt.SUBTYPE_MESSAGING_ARBITRARY_MESSAGE)
-				return { transtype : SkyNxt.MESSAGE, icon : 'ion-chatboxes positive' };
+				return { transtype : SkyNxt.MESSAGE, icon : 'ion-chatboxes' };
 		return { transtype : SkyNxt.OTHER, icon : 'ion-arrow-swap' };
 	}
 
@@ -88,6 +86,11 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		return ((group.type.indexOf("-") != -1) ? true : false) && retVal
 	}
 	
+	$scope.isAssetShown = function(group)
+	{
+		return group.asset && $scope.isGroupShown(group);
+	}
+
 	$ionicLoading.show({
 		duration: 30000,
 		noBackdrop: true,
@@ -134,7 +137,15 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 				}
 			}
 			
-			transactionsdb.insert({type : transType.transtype, icon : transType.icon, amount : trans.amountNQT, time: trans.timestamp, from : fromAdd, to : toAddr, confirmations : trans.confirmations, fee : trans.feeNQT, dateTime : $filter('formatTimestamp')(trans.timestamp)})
+			var confirmationsBlocks = '1440+';
+			var confirmationsDispColor = "balanced";
+			if(trans.confirmations < 1440)
+			{
+				confirmationsBlocks = trans.confirmations;
+				confirmationsDispColor = "assertive";
+			}
+			
+			transactionsdb.insert({type : transType.transtype, icon : transType.icon, amount : trans.amountNQT, time: trans.timestamp, from : fromAdd, to : toAddr, asset: trans.attachment.asset, confirmations : confirmationsBlocks, confirmDispColor : confirmationsDispColor, fee : trans.feeNQT, dateTime : $filter('formatTimestamp')(trans.timestamp)})
 			;
 			$scope.groups = transactionsdb.chain().simplesort("time").data();
 		}
