@@ -90,7 +90,7 @@ THE SOFTWARE.
 			}
 			else 
 			{
-			   SkyNxt.discover(); // browser
+			   //SkyNxt.discover(); // browser
 			}
 		});
 
@@ -452,23 +452,33 @@ function loaderIconText(msgText) {
 		</ion-toggle>
 
 			<div class="row text-center">			  
-			  <div class="col"><strong>Price</strong></div>
-			  <div class="col"><strong>Quantity</strong></div>
-			  <div class="col"></div>
+			  <div class="col col-10"></div>
+			  <div class="col col-40"><strong>Price</strong></div>
+			  <div class="col col-40"><strong>Quantity</strong></div>
 			</div>
 		  <div ng-show="orderstatus()">
-			<div class="row gridstyle text-center" ng-repeat="openaskorder in openaskorders ">			  
-			  <div class="col">{{ openaskorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
-			  <div class="col">{{ openaskorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>			  
-			  <div class="col"><button class="button button-small icon ion-close-round" ng-click="cancelOrder(openaskorder, 'sell')"></button></div>
-			</div>
+			<ion-list show-delete="true">
+				<ion-item ng-repeat="openaskorder in openaskorders" class="item-remove-animate">
+					<div class="row">
+						<div class="col col-10"></div>
+						<div class="col col-40">{{ openaskorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
+						<div class="col col-40">{{ openaskorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>			  
+					</div>
+				<ion-delete-button class="ion-minus-circled" ng-click="cancelOrder(openaskorder, 'sell')"></ion-delete-button>
+				</ion-item>
+			</ion-list>
 			</div>
 		  <div ng-show="!orderstatus()">
-			<div class="row gridstyle text-center" ng-repeat="openbidorder in openbidorders ">			  
-			  <div class="col">{{ openbidorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
-			  <div class="col">{{ openbidorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>
-			  <div class="col"><button class="button button-small icon ion-close-round" ng-click="cancelOrder(openbidorder, 'buy')"></button></div>
-			</div>
+			<ion-list show-delete="true">
+				<ion-item ng-repeat="openbidorder in openbidorders" class="item-remove-animate">
+					<div class="row">
+						<div class="col col-10"></div>
+						<div class="col col-40">{{ openbidorder.priceNQT | formatPrice: currentAsset.decimals}}</div>
+						<div class="col col-40">{{ openbidorder.quantityQNT | formatQuantity: currentAsset.decimals}}</div>
+					</div>
+				<ion-delete-button class="ion-minus-circled" ng-click="cancelOrder(openbidorder, 'buy')"></ion-delete-button>
+				</ion-item>
+			</ion-list>
 		</div>
 		</ion-content>
 	</ion-view>

@@ -156,13 +156,13 @@ SkyNxt.sendNxtAmt_BuildHex = function(amountNQT, recipientID, callbackFunc){
 	broadcastTransaction(tx, callbackFunc);
 }
 	
-SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order){
+SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order, callbackFunc){
     assetID = asset.toString();
 	quantityQNT = quantity.toString();
 	priceNQT = price.toString();
 	orderID = order.toString();
 	var buffer = []; var hexTrans;
-	var LONG_BYTE_LENGTH = 8; 
+	var LONG_BYTE_LENGTH = 8;
 
 	var amountNQT = 0; var ecBlockHeight = 0; var ecBlockId = 0; var version = 1;
 	
@@ -228,7 +228,7 @@ SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order){
 	var buffAfterSignature = buffer.slice(96+64);
 	var signed = buffTillSignature; signed = signed.concat(signature); signed = signed.concat(buffAfterSignature);
 	var tx = converters.byteArrayToHexString(signed);
-	broadcastTransaction(tx);
+	broadcastTransaction(tx, callbackFunc);
 }
 
 SkyNxt.castVote_BuildHex = function(pollid, vote){

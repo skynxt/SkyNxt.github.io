@@ -463,7 +463,43 @@ $scope.$on('$ionicView.enter', function(){
 	.error(function(response) {
 	});
 	}
-	$scope.order = ""; 
+
+	$rootScope.orderCancelCallBack = function(msg)
+	{
+		$ionicLoading.hide();
+		if(msg.errorCode)
+		{
+			var resultPopup = $ionicPopup.show({
+			title: 'Order cancel error',
+			subTitle: msg.errorDescription,
+			scope: $scope,
+			buttons: [
+			{ text: 'Close' }
+			]
+			});
+			resultPopup.then(function(res) {
+				resultPopup.close();
+			});
+		}
+		else
+		{
+			if($scope.type = "sell")
+			{
+				openaskordersdb.remove($scope.order);
+				$scope.openaskorders = openaskordersdb.chain().simplesort("height").data();
+			}
+			else
+			{
+				openbidordersdb.remove($scope.order);
+				$scope.openbidorders = openbidordersdb.chain().simplesort("height").data();
+			}
+			$scope.order = "";
+			$scope.type = "";
+			$ionicLoading.show({ template: "<span class='balanced'>Order cancellation success!</span>", noBackdrop: true, duration: 3000 });
+		}
+	}
+
+	$scope.order = "";
 	$scope.type = "";
 	$scope.cancelOrder = function(openOrder, type){
 			$scope.type = type;
@@ -488,20 +524,18 @@ $scope.$on('$ionicView.enter', function(){
 						var quantityQNT = new BigInteger($scope.order.quantityQNT);
 						var priceNQT = new BigInteger($scope.order.priceNQT);
 						var orderCancel = new BigInteger($scope.order.order);
-
+						$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 						if(type == "sell")
 						{
-							SkyNxt.placeAssetOrder_BuildHex("sell_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel);
+							SkyNxt.placeAssetOrder_BuildHex("sell_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, orderCancelCallBack);
 						}
 						else
 						{
-							SkyNxt.placeAssetOrder_BuildHex("buy_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel);							
+							SkyNxt.placeAssetOrder_BuildHex("buy_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, orderCancelCallBack);
 						}
-						$scope.order = ""; 
-						$scope.type = "";						
-					} 
+					}
 				});
-			}		
+			}
 	}
 	
 	$scope.openAskOrders();	
