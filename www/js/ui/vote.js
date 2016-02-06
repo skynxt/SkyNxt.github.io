@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2015 SkyNxt.
+// Copyright (c) 2015-2016 SkyNxt.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -201,6 +201,29 @@ if($scope.POLL.finished == false)
 .controller('pollInfoTabCtrl', function($scope, $rootScope) {
 })
 .controller('voteDetailsCtrl', function($scope, $rootScope, $ionicLoading, $http, $ionicPopup) {
+$rootScope.voteCallBack = function(msg)
+{
+	$ionicLoading.hide();
+	if(msg.errorCode)
+	{
+		var resultPopup = $ionicPopup.show({
+		title: 'Vote error',
+		subTitle: msg.errorDescription,
+		scope: $scope,
+		buttons: [
+		{ text: 'Close' }
+		]
+		});
+		resultPopup.then(function(res) {
+			resultPopup.close();
+		});
+	}
+	else
+	{
+		$ionicLoading.show({ template: "<span>Voting success!</span>", noBackdrop: true, duration: 3000 });
+	}
+}
+
 var pollInfo = voteList.find({ 'poll': globalPoll.poll });
 $scope.selectedPoll = pollInfo[0];
 $scope.select = {name : ''};
@@ -293,7 +316,7 @@ $scope.submitVote = function(){
 		});	
 		confirmPopup.then(function(res) {
 			if(res) {
-				SkyNxt.castVote_BuildHex(globalPoll.poll, votes);
+				SkyNxt.castVote_BuildHex(globalPoll.poll, votes, $rootScope.voteCallBack);
 			} 
 		});
 	}

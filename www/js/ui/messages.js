@@ -139,24 +139,25 @@ $scope.checkRecipient = function() {
 
 $rootScope.sendMessageCallBack = function(msg)
 {
-	if(msg == "Success")
+	$ionicLoading.hide();
+	if(msg.errorCode)
 	{
-		$scope.message.text = "";
+		var resultPopup = $ionicPopup.show({
+		title: 'Message sending error',
+		subTitle: msg.errorDescription,
+		scope: $scope,
+		buttons: [
+		{ text: 'Close' }
+		]
+		});
+		resultPopup.then(function(res) {
+			resultPopup.close();
+		});
 	}
-	var resultPopup = $ionicPopup.show({
-	title: 'Send Message',
-	subTitle: 'Result: ' + msg,
-	scope: $scope,
-	buttons: [
-	{ text: 'Close' }
-	]
-	});
-	resultPopup.then(function(res) {
-		resultPopup.close();
-	});
-	$timeout(function() {
-		resultPopup.close(); //close the popup after 3 seconds
-	}, 3000);
+	else
+	{
+		$ionicLoading.show({ template: "<span>Message sent!</span>", noBackdrop: true, duration: 3000 });
+	}
 }
 
 $scope.sendMessage = function()
@@ -179,14 +180,15 @@ $scope.sendMessage = function()
 		});
 		alertPopup.then(function(res) {
 		});
-		return;		
+		return;
 	}
 	
 	if($scope.plainText)
 	{
 		var messageBytes = converters.stringToByteArray($scope.message.text)
 		var messageFee = Math.ceil(messageBytes.length/32);
-		messageFee = SkyNxt.FEE_NQT * messageFee
+		messageFee = SkyNxt.FEE_NQT * messageFee;
+		$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 		SkyNxt.message_BuildHex(messageBytes, converters.stringToByteArray(""), SkyNxt.MESSAGE, $scope.recipient_address.text, messageFee, $rootScope.sendMessageCallBack);
 	}
 	else
@@ -200,8 +202,9 @@ $scope.sendMessage = function()
 			if(response.publicKey != 'undefined'){
 				var data = $rootScope.encryptNote($scope.message.text, converters.hexStringToByteArray(response.publicKey));
 				var messageFee = Math.ceil(data.str.length/32);
-				messageFee = SkyNxt.FEE_NQT * messageFee
-				SkyNxt.message_BuildHex(data.str, data.nonce, SkyNxt.ENCRYPTED_MESSAGE, messageFee, $scope.recipient_address.text);
+				messageFee = SkyNxt.FEE_NQT * messageFee;
+				$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
+				SkyNxt.message_BuildHex(data.str, data.nonce, SkyNxt.ENCRYPTED_MESSAGE, messageFee, $scope.recipient_address.text, $rootScope.sendMessageCallBack);
 			}
 			else
 			{

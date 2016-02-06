@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2015 SkyNxt.
+// Copyright (c) 2015-2016 SkyNxt.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -231,7 +231,7 @@ SkyNxt.placeAssetOrder_BuildHex = function(type, asset, quantity, price, order, 
 	broadcastTransaction(tx, callbackFunc);
 }
 
-SkyNxt.castVote_BuildHex = function(pollid, vote){
+SkyNxt.castVote_BuildHex = function(pollid, vote, callbackFunc){
     pollID = pollid.toString();
 	var buffer = []; var hexTrans;
 	var LONG_BYTE_LENGTH = 8; 
@@ -284,7 +284,7 @@ SkyNxt.castVote_BuildHex = function(pollid, vote){
 	var signed = buffTillSignature; signed = signed.concat(signature); signed = signed.concat(buffAfterSignature);
 	var tx = converters.byteArrayToHexString(signed);
 	//prompt("", tx);
-	broadcastTransaction(tx);
+	broadcastTransaction(tx, callbackFunc);
 }
 
 SkyNxt.build = function(type, subType){

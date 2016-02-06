@@ -1,7 +1,7 @@
 <!--
 The MIT License (MIT)
 
-Copyright (c) 2015 SkyNxt.
+Copyright (c) 2015-2016 SkyNxt.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -84,13 +84,14 @@ THE SOFTWARE.
 		}
 		
 		$( document ).ready(function(){
+			SkyNxt.navigator = navigator;
 			if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|IEMobile)/)) 
 			{
 				document.addEventListener("deviceready", onDeviceReady, false); // Wait for device API libraries to load
 			}
 			else 
 			{
-			   //SkyNxt.discover(); // browser
+			   SkyNxt.discover(); // browser
 			}
 		});
 
@@ -176,7 +177,14 @@ function loaderIconText(msgText) {
  <ion-view view-title="SkyNxt">
 <ion-content>
 	<div class="list list-inset">
-	<button class="button button-clear icon {{showPassphrase}}" ng-click="switchPassphraseView()"></button>
+	<div class="row">
+		<div class="col">
+			<button class="button button-clear icon {{showPassphrase}}" ng-click="switchPassphraseView()"></button>
+		</div>
+		<div class="col col-20">
+			<a class='button button-assertive button-clear icon ion-log-out' ng-click="logOut()"> Exit</a>
+		</div>
+	</div>
 	  <label class="item item-input">		
 		<input type={{passPhrase}} ng-model="passphrase.text" placeholder="Enter your pass-phrase" ng-change="passPhraseEntered()"/>
 	  </label>
@@ -192,7 +200,7 @@ function loaderIconText(msgText) {
 	</button>
    <p></p>
       <a class='button icon ion-hammer' href="#settings"></a>	
-   </div> 
+   </div>
   </ion-content>
  </ion-view>
 </script>
@@ -206,12 +214,12 @@ function loaderIconText(msgText) {
   <p></p>
 	<h4 style="text-align:center; width:100%; border-width: 1px; border-style:dashed; border-color:#C1CDCD">{{globalAddress}}</h4>
       <div class="list">
-        <a ng-repeat="item in items" href="#/{{item.id}}" class="item">
-		<div class="item-input-inset">		  
-		  <i style="font-size:30px" class="icon {{item.icon}}"></i>
-		  <span style="font-size:25px">&nbsp;&nbsp;{{ item.option }}</span>
+        <a ng-repeat="item in items" href="#/{{item.id}}" class="item" style='padding: 7px !important;'>
+		<div class="padding item-input-inset">		  
+		  &nbsp;&nbsp;<i style="font-size:25px" class="icon {{item.icon}}"></i>
+		  <span style="font-size:20px">&nbsp;&nbsp;{{ item.option }}</span>
 		</div>
-          <h2>{{ item.detail }}</h2>
+          <h2>&nbsp;&nbsp;{{ item.detail }}</h2>
         </a>
 	 </div>
   </ion-content>
@@ -284,7 +292,7 @@ function loaderIconText(msgText) {
 									{{group.name}}
 								</div>
 								<div class='col'>
-									<strong><span class='positive' style='font-size:12px;'>{{group | formatBalance}}</span></strong>
+									<strong><span class='positive' style='font-size:14px;'>{{group | formatBalance}}</span></strong>
 								</div>
 							</div>
 						</ion-item>

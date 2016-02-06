@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2015 SkyNxt.
+// Copyright (c) 2015-2016 SkyNxt.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -87,6 +87,15 @@ else
 $scope.logIn = function() {
 	$scope.passphrase.text = "";
 	$state.go('account');
+};
+
+$scope.logOut = function() {
+	delete $scope.passphrase.text;
+	delete SkyNxt.globalPassPhrase;
+	delete SkyNxt.globalAddress;
+	//save to file
+	if(navigator.app)
+		navigator.app.exitApp();
 };
 
 $ionicModal.fromTemplateUrl('templates/qr.html', {

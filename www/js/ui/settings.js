@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2015 SkyNxt.
+// Copyright (c) 2015-2016 SkyNxt.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -121,7 +121,7 @@ $scope.testIPAddress = function()
 				SkyNxt.PEER_IP_UI = $scope.ip.text;
 				SkyNxt.PEER_PORT_UI = $scope.port.text;
 			}
-			$ionicLoading.show({ template: "<span class='balanced'>Node connection success!</span>", noBackdrop: true, duration: 2000 });
+			$ionicLoading.show({ template: "<span>Node connection success!</span>", noBackdrop: true, duration: 2000 });
 		}
 		else
 		{

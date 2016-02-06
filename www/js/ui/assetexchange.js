@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2015 SkyNxt.
+// Copyright (c) 2015-2016 SkyNxt.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -120,11 +120,7 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 		return $scope.shownGroup === group;
 	};
 
-	$ionicLoading.show({
-		duration: 30000,
-		noBackdrop: true,
-		template: '<ion-spinner icon="spiral"></ion-spinner>'
-	});
+	$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 	
 	$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getAccountAssets&account=' + SkyNxt.globalAddress + "&includeAssetInfo=true")
     .success(function(response) {
@@ -202,6 +198,30 @@ if(SkyNxt.ADDRESS != "" && SkyNxt.ADDRESS != undefined ){
 })
 .controller('buyTabCtrl', function($rootScope, $scope, $ionicLoading, $ionicPopup, $http, $filter) {
 $scope.currentAsset = SkyNxt.currentAsset;
+
+$rootScope.orderPlacementCallBack = function(msg)
+{
+	$ionicLoading.hide();
+	if(msg.errorCode)
+	{
+		var resultPopup = $ionicPopup.show({
+		title: 'Order placement error',
+		subTitle: msg.errorDescription,
+		scope: $scope,
+		buttons: [
+		{ text: 'Close' }
+		]
+		});
+		resultPopup.then(function(res) {
+			resultPopup.close();
+		});
+	}
+	else
+	{
+		$ionicLoading.show({ template: "<span>Order placement success!</span>", noBackdrop: true, duration: 3000 });
+	}
+}
+
 $scope.$on('$ionicView.enter', function(){ 
 if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 {
@@ -224,11 +244,7 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 
 	$scope.buyOrders = function(){
 	$scope.currentAsset = SkyNxt.currentAsset;
-	$ionicLoading.show({
-		duration: 30000,
-		noBackdrop: true,
-		template: '<ion-spinner icon="spiral"></ion-spinner>'
-	});
+	$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 
 	orderType = "getAskOrders";
 	$http.get(SkyNxt.ADDRESS +'/nxt?requestType='+ orderType +'&asset=' + $scope.currentAsset.asset)
@@ -263,7 +279,7 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 	{
 		if($scope.buyprice.text != "" && $scope.buyquantity.text != "" && !isNaN($scope.buyprice.text) && !isNaN($scope.buyquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + " NXT<br>Buy Quantity: " + $scope.buyquantity.text  + "<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Buy Price: " + $scope.buyprice.text + " NXT<br>Buy Quantity: " + $scope.buyquantity.text  + " " + SkyNxt.currentAsset.name +"<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Buy order',
@@ -275,18 +291,14 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 					var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.buyquantity.text), SkyNxt.currentAsset.decimals));
 					var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.buyprice.text)), SkyNxt.currentAsset.decimals));
 					var order = new BigInteger("0");
-					SkyNxt.placeAssetOrder_BuildHex("buy", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString());
+					$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
+					SkyNxt.placeAssetOrder_BuildHex("buy", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString(), $rootScope.orderPlacementCallBack);
 				}
 			});			
 		}
 		else
 		{
-			var alertPopup = $ionicPopup.alert({
-				title: 'Alert!',
-				template: 'Incorrect input'
-			});
-			alertPopup.then(function(res) {
-			});					
+			$ionicLoading.show({ template: "<span>Incorrect input</span>", noBackdrop: true, duration: 3000 });
 		}
 	}
 }
@@ -295,6 +307,30 @@ if(SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS )
 })
 .controller('sellTabCtrl', function($rootScope, $scope, $ionicLoading, $ionicPopup, $http, $filter) {
 $scope.currentAsset = SkyNxt.currentAsset;
+
+$rootScope.orderPlacementCallBack = function(msg)
+{
+	$ionicLoading.hide();
+	if(msg.errorCode)
+	{
+		var resultPopup = $ionicPopup.show({
+		title: 'Order placement error',
+		subTitle: msg.errorDescription,
+		scope: $scope,
+		buttons: [
+		{ text: 'Close' }
+		]
+		});
+		resultPopup.then(function(res) {
+			resultPopup.close();
+		});
+	}
+	else
+	{
+		$ionicLoading.show({ template: "<span>Order placement success!</span>", noBackdrop: true, duration: 3000 });
+	}
+}
+
 $scope.$on('$ionicView.enter', function(){ 
 if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 	$scope.bidorders = [];
@@ -357,7 +393,7 @@ if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 	{
 		if($scope.sellprice.text != "" && $scope.sellquantity.text != "" && !isNaN($scope.sellprice.text) && !isNaN($scope.sellquantity.text))
 		{
-			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + " NXT<br>Sell Quantity: " + $scope.sellquantity.text + "<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
+			inputOptions = "Asset: " + SkyNxt.currentAsset.name + "<br>Asset ID: " + SkyNxt.currentAsset.asset + "<br>Sell Price: " + $scope.sellprice.text + " NXT<br>Sell Quantity: " + $scope.sellquantity.text + " " + SkyNxt.currentAsset.name + "<br>Total " + $scope.formatTotal + " NXT<br>Fee: 1 Nxt";
 
 			var confirmPopup = $ionicPopup.confirm({
 				title: 'Confirm Sell order',
@@ -369,18 +405,14 @@ if( SkyNxt.currentAsset.decimals <= SkyNxt.MAX_DECIMALS ){
 					var quantityQNT = new BigInteger(NRS.convertToQNT(String($scope.sellquantity.text), SkyNxt.currentAsset.decimals));
 					var priceNQT = new BigInteger(NRS.calculatePricePerWholeQNT(NRS.convertToNQT(String($scope.sellprice.text)), SkyNxt.currentAsset.decimals));
 					var order = new BigInteger("0");
-					SkyNxt.placeAssetOrder_BuildHex("sell", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString());
+					$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
+					SkyNxt.placeAssetOrder_BuildHex("sell", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), order.toString(), $rootScope.orderPlacementCallBack);
 				}
 			});			
 		}
 		else
 		{
-			var alertPopup = $ionicPopup.alert({
-				title: 'Alert!',
-				template: 'Incorrect input'
-			});
-			alertPopup.then(function(res) {
-			});					
+			$ionicLoading.show({ template: "<span>Incorrect input</span>", noBackdrop: true, duration: 3000 });
 		}
 	}
 
@@ -495,7 +527,7 @@ $scope.$on('$ionicView.enter', function(){
 			}
 			$scope.order = "";
 			$scope.type = "";
-			$ionicLoading.show({ template: "<span class='balanced'>Order cancellation success!</span>", noBackdrop: true, duration: 3000 });
+			$ionicLoading.show({ template: "<span>Order cancellation success!</span>", noBackdrop: true, duration: 3000 });
 		}
 	}
 
@@ -527,11 +559,11 @@ $scope.$on('$ionicView.enter', function(){
 						$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
 						if(type == "sell")
 						{
-							SkyNxt.placeAssetOrder_BuildHex("sell_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, orderCancelCallBack);
+							SkyNxt.placeAssetOrder_BuildHex("sell_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, $rootScope.orderCancelCallBack);
 						}
 						else
 						{
-							SkyNxt.placeAssetOrder_BuildHex("buy_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, orderCancelCallBack);
+							SkyNxt.placeAssetOrder_BuildHex("buy_cancel", assetId.toString(), quantityQNT.toString(), priceNQT.toString(), orderCancel, $rootScope.orderCancelCallBack);
 						}
 					}
 				});
