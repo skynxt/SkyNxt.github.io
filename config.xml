@@ -32,7 +32,12 @@
 	</platform>
 
 	<platform name="winphone">
-		<icon src="res/wp/SkyNxt.ico" platform="winphone" />
-		<splash src="res/wp/SkyNxt.png" platform="winphone" />
+		<icon src="res/wp/SkyNxt.ico" />
+		<splash src="res/wp/SkyNxt.png" />
+	</platform>
+
+	<platform name="ios">
+		<icon src="res/ios/SkyNxt.png" width="180" height="180" />
+		<splash src="res/wp/SkyNxt.png" width="320" height="480" />
 	</platform>
 </widget>

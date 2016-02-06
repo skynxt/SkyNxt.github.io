@@ -292,7 +292,7 @@ function loaderIconText(msgText) {
 									{{group.name}}
 								</div>
 								<div class='col'>
-									<strong><span class='positive' style='font-size:14px;'>{{group | formatBalance}}</span></strong>
+									<strong><span class='positive'>{{group | formatBalance}}</span></strong>
 								</div>
 							</div>
 						</ion-item>
@@ -567,6 +567,8 @@ function loaderIconText(msgText) {
 					</ion-item>
 					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
 						Finish block height: {{group.finishHeight}}
+					</ion-item>
+					<ion-item class="item-accordion" ng-show="isGroupShown(group)">
 						Finish time: {{group.finishTime}}
 					</ion-item>
 					<ion-item ng-show="isGroupShown(group)">
