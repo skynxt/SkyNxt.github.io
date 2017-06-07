@@ -203,7 +203,7 @@ $scope.verifyProof = function()
 					}
 					if (parsedJson.transaction) {
 						$ionicLoading.show({duration: 30000, noBackdrop: true, template: '<ion-spinner icon="spiral"></ion-spinner>'});
-						$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getTransaction&transaction=' + $scope.verify.text.transaction)
+						$http.get(SkyNxt.ADDRESS + '/nxt?requestType=getTransaction&transaction=' + parsedJson.transaction)
 						.success(function(response) {
 							$ionicLoading.hide();
 							if(response.errorCode)
